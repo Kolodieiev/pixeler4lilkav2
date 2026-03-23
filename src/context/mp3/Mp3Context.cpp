@@ -7,7 +7,6 @@
 #include "./res/play.h"
 #include "./res/rewind.h"
 #include "./res/speaker.h"
-#include "pixeler/src/manager/CoprocessorManager.h"
 
 #define UPD_TRACK_INF_INTERVAL 1000UL
 #define UPD_TIME_INTERVAL 10000UL
@@ -909,9 +908,6 @@ void Mp3Context::changeBackLight()
   {
     _gui_enabled = true;
 
-    uint8_t ccpu_cmd_data[2]{CCPU_CMD_PIN_ON, CH_PIN_DISPLAY_PWR};
-    _ccpu.sendCmd(ccpu_cmd_data, sizeof(ccpu_cmd_data), 2);
-
     _input.enableBtn(BtnID::BTN_BACK);
     _input.enableBtn(BtnID::BTN_LEFT);
     _input.enableBtn(BtnID::BTN_RIGHT);
@@ -921,9 +917,6 @@ void Mp3Context::changeBackLight()
   else
   {
     _gui_enabled = false;
-
-    uint8_t ccpu_cmd_data[2]{CCPU_CMD_PIN_OFF, CH_PIN_DISPLAY_PWR};
-    _ccpu.sendCmd(ccpu_cmd_data, sizeof(ccpu_cmd_data), 2);
 
     _input.disableBtn(BtnID::BTN_BACK);
     _input.disableBtn(BtnID::BTN_LEFT);
