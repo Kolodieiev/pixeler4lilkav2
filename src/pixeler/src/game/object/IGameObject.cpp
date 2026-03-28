@@ -187,15 +187,12 @@ namespace pixeler
 
   void IGameObject::stepToPoint(uint16_t x_to, uint16_t y_to, uint16_t step_w)
   {
-    // 1. Перевірка, чи ми вже в цілі
     if (_x_global == x_to && _y_global == y_to)
       return;
 
-    // 2. Розрахунок відстаней (дельти)
     int32_t dx = static_cast<int32_t>(x_to) - _x_global;
     int32_t dy = static_cast<int32_t>(y_to) - _y_global;
 
-    // 3. Обробка руху по осях (якщо одна з координат співпадає)
     if (dx == 0)
     {  // Рух строго по вертикалі
       if (abs(dy) <= step_w)
@@ -214,7 +211,6 @@ namespace pixeler
       return;
     }
 
-    // 4. Діагональний рух (Fixed Point арифметика)
     // Визначаємо, по якій осі відстань більша, щоб зробити її базовою
     if (abs(dx) >= abs(dy))
     {
@@ -272,7 +268,7 @@ namespace pixeler
     if (rigid_only && !_sprite.is_rigid)
       return false;
 
-    // 1. Визначаємо межі прямокутника (AABB)
+    // Визначаємо межі прямокутника (AABB)
     int16_t rect_x1, rect_y1, rect_x2, rect_y2;
 
     if (rigid_only)
@@ -290,15 +286,15 @@ namespace pixeler
       rect_y2 = _y_global + _sprite.height;
     }
 
-    // 2. Знаходимо найближчу точку на прямокутнику до центру кола
+    // Знаходимо найближчу точку на прямокутнику до центру кола
     int16_t closest_x = (x_mid < rect_x1) ? rect_x1 : (x_mid > rect_x2 ? rect_x2 : x_mid);
     int16_t closest_y = (y_mid < rect_y1) ? rect_y1 : (y_mid > rect_y2 ? rect_y2 : y_mid);
 
-    // 3. Рахуємо відстань від найближчої точки до центру кола
+    // Рахуємо відстань від найближчої точки до центру кола
     int32_t dx = static_cast<int32_t>(x_mid) - closest_x;
     int32_t dy = static_cast<int32_t>(y_mid) - closest_y;
 
-    // 4. Перевірка: чи відстань менша за радіус (використовуємо квадрат відстані)
+    // Перевірка чи відстань менша за радіус (використовуємо квадрат відстані)
     return (dx * dx + dy * dy) <= (static_cast<int32_t>(radius) * radius);
   }
 

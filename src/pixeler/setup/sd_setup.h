@@ -9,6 +9,9 @@
 
 #define SD_SPI_BUS HSPI  // Номер шини SPI
 
+// #define SD_PIN_PWR_ON 46   // Пін-вимикач карти пам'яті. Якщо визначено. Інакше закоментуй.
+#define SD_PWR_ON_LVL LOW  // Рівень, що потрібно подати на SD_PIN_PWR_ON для увімкнення карти.
+
 #define SD_PIN_CS 16  // Бібліотека карти пам'яті вимагає реальний пін, навіть у випадку, якщо CS приєдано до землі.
 #define SD_PIN_MOSI 17
 #define SD_PIN_SCLK 18
