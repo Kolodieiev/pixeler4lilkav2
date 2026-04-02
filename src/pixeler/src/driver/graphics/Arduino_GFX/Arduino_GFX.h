@@ -11,15 +11,10 @@
 #include "Arduino_DataBus.h"
 #include "Arduino_G.h"
 
-#if !defined(ATTINY_CORE)
-#include "gfxfont.h"
-#endif  // !defined(ATTINY_CORE)
-
 #ifndef DEGTORAD
 #define DEGTORAD 0.017453292519943295769236907684886F
 #endif
 
-#define U8G2_FONT_SUPPORT
 #include "U8g2/u8g2.h"
 
 // Default color definitions
@@ -113,38 +108,8 @@
 #define _in_range(v, a, b) ((a > b) ? _ordered_in_range(v, b, a) : _ordered_in_range(v, a, b))
 #endif
 
-#if !defined(ATTINY_CORE)
-GFX_INLINE static GFXglyph* pgm_read_glyph_ptr(const GFXfont* gfxFont, uint8_t c)
-{
-#ifdef __AVR__
-  return &(((GFXglyph*)pgm_read_pointer(&gfxFont->glyph))[c]);
-#else
-  // expression in __AVR__ section may generate "dereferencing type-punned pointer will break strict-aliasing rules" warning
-  // In fact, on other platforms (such as STM32) there is no need to do this pointer magic as program memory may be read in a usual way
-  // So expression may be simplified
-  return gfxFont->glyph + c;
-#endif  //__AVR__
-}
-
-GFX_INLINE static uint8_t* pgm_read_bitmap_ptr(const GFXfont* gfxFont)
-{
-#ifdef __AVR__
-  return (uint8_t*)pgm_read_pointer(&gfxFont->bitmap);
-#else
-  // expression in __AVR__ section generates "dereferencing type-punned pointer will break strict-aliasing rules" warning
-  // In fact, on other platforms (such as STM32) there is no need to do this pointer magic as program memory may be read in a usual way
-  // So expression may be simplified
-  return gfxFont->bitmap;
-#endif  //__AVR__
-}
-#endif  // !defined(ATTINY_CORE)
-
 /// A generic graphics superclass that can handle all sorts of drawing. At a minimum you can subclass and provide drawPixel(). At a maximum you can do a ton of overriding to optimize. Used for any/all Adafruit displays!
-#if defined(LITTLE_FOOT_PRINT)
-class Arduino_GFX : public Print
-#else
 class Arduino_GFX : public Print, public Arduino_G
-#endif  // !defined(LITTLE_FOOT_PRINT)
 {
 public:
   Arduino_GFX(int16_t w, int16_t h);  // Constructor
@@ -196,20 +161,15 @@ public:
   void setTextSize(uint8_t sx, uint8_t sy);
   void setTextSize(uint8_t sx, uint8_t sy, uint8_t pixel_margin);
 
-#if !defined(ATTINY_CORE)
-  void setFont(const GFXfont* f = NULL);
-#if defined(U8G2_FONT_SUPPORT)
   void setFont(const uint8_t* font);
   void setUTF8Print(bool isEnable);
   uint16_t u8g2_font_get_word(const uint8_t* font, uint8_t offset);
   uint8_t u8g2_font_decode_get_unsigned_bits(uint8_t cnt);
   int8_t u8g2_font_decode_get_signed_bits(uint8_t cnt);
   void u8g2_font_decode_len(uint8_t len, uint8_t is_foreground, uint16_t color, uint16_t bg);
-#endif  // defined(U8G2_FONT_SUPPORT)
   virtual void flushMainBuff();
   virtual void duplicateMainBuff();
   virtual void flushSecondBuff();
-#endif  // !defined(ATTINY_CORE)
 
   // adopt from LovyanGFX
   void drawEllipse(int16_t x, int16_t y, int16_t rx, int16_t ry, uint16_t color);
@@ -364,11 +324,7 @@ public:
   }
 
 protected:
-#if !defined(ATTINY_CORE)
-  GFXfont* gfxFont;  ///< Pointer to special font
-#endif               // !defined(ATTINY_CORE)
 
-#if defined(U8G2_FONT_SUPPORT)
   const uint8_t* u8g2Font;
   const uint8_t* _u8g2_decode_ptr;
   int16_t* _roundMinX;
@@ -380,11 +336,6 @@ protected:
   uint16_t _u8g2_start_pos_unicode;
   int16_t _u8g2_target_x;
   int16_t _u8g2_target_y;
-#if defined(LITTLE_FOOT_PRINT)
-  int16_t
-      WIDTH,   ///< This is the 'raw' display width - never changes
-      HEIGHT;  ///< This is the 'raw' display height - never changes
-#endif         // defined(LITTLE_FOOT_PRINT)
 
   int16_t
       _width,   ///< Display width as modified by current rotation
@@ -428,7 +379,6 @@ protected:
       _rotation;          ///< Display rotation (0 thru 3)
 
   uint8_t _u8g2_decode_bit_pos;
-#endif  // defined(U8G2_FONT_SUPPORT)
 
   bool _isRoundMode = false;
   bool _enableUTF8Print = false;

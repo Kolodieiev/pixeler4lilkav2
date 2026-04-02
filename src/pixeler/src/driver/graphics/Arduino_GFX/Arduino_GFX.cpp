@@ -9,11 +9,11 @@
 #include "Arduino_GFX.h"
 
 #include <pgmspace.h>
-#include "pixeler/setup/graphics_setup.h"
 
 #include "Arduino_DataBus.h"
 #include "float.h"
 #include "font/glcdfont.h"
+#include "pixeler/setup/graphics_setup.h"
 
 /**************************************************************************/
 /*!
@@ -22,11 +22,7 @@
   @param  h   Display height, in pixels
 */
 /**************************************************************************/
-#if defined(LITTLE_FOOT_PRINT)
-Arduino_GFX::Arduino_GFX(int16_t w, int16_t h) : WIDTH(w), HEIGHT(h)
-#else
 Arduino_GFX::Arduino_GFX(int16_t w, int16_t h) : Arduino_G(w, h)
-#endif  // !defined(LITTLE_FOOT_PRINT)
 {
   _width = WIDTH;
   _height = HEIGHT;
@@ -45,12 +41,7 @@ Arduino_GFX::Arduino_GFX(int16_t w, int16_t h) : Arduino_G(w, h)
   text_pixel_margin = 0;
   _rotation = 0;
   wrap = true;
-#if !defined(ATTINY_CORE)
-  gfxFont = NULL;
-#if defined(U8G2_FONT_SUPPORT)
   u8g2Font = NULL;
-#endif  // defined(U8G2_FONT_SUPPORT)
-#endif  // !defined(ATTINY_CORE)
 }
 
 /**************************************************************************/
@@ -1097,7 +1088,6 @@ void Arduino_GFX::draw16bitRGBBitmapWithTranColor(
   endWrite();
 }
 
-#if defined(U8G2_FONT_SUPPORT)
 uint16_t Arduino_GFX::u8g2_font_get_word(const uint8_t* font, uint8_t offset)
 {
   uint16_t pos;
@@ -1242,8 +1232,6 @@ void Arduino_GFX::u8g2_font_decode_len(uint8_t len, uint8_t is_foreground, uint1
   _u8g2_dy = ly;
 }
 
-#endif  // defined(U8G2_FONT_SUPPORT)
-
 void Arduino_GFX::flushMainBuff()
 {
   log_e("Відсутня реалізація методу");
@@ -1276,124 +1264,7 @@ void Arduino_GFX::drawChar(int16_t x, int16_t y, unsigned char c, uint16_t color
 {
   int16_t block_w, block_h, curX, curY, curW, curH;
 
-#if !defined(ATTINY_CORE)
-  if (gfxFont)  // custom font
-  {
-    // Character is assumed previously filtered by write() to eliminate
-    // newlines, returns, non-printable characters, etc.  Calling
-    // drawChar() directly with 'bad' characters of font may cause mayhem!
-
-    c -= pgm_read_byte(&gfxFont->first);
-    GFXglyph* glyph = pgm_read_glyph_ptr(gfxFont, c);
-    uint8_t* bitmap = pgm_read_bitmap_ptr(gfxFont);
-
-    uint16_t bo = pgm_read_word(&glyph->bitmapOffset);
-    uint8_t w = pgm_read_byte(&glyph->width),
-            h = pgm_read_byte(&glyph->height),
-            xAdvance = pgm_read_byte(&glyph->xAdvance),
-            yAdvance = pgm_read_byte(&gfxFont->yAdvance),
-            baseline = yAdvance * 2 / 3;  // TODO: baseline is an arbitrary currently, may be define in font file
-#ifdef __AVR__
-    int8_t xo = pgm_read_byte(&glyph->xOffset),
-           yo = pgm_read_byte(&glyph->yOffset);
-#else
-    int8_t xo = pgm_read_sbyte(&glyph->xOffset),
-           yo = pgm_read_sbyte(&glyph->yOffset);
-#endif
-    uint8_t xx, yy, bits = 0, bit = 0;
-    int16_t xo16 = xo, yo16 = yo;
-
-    if (xAdvance < w)
-    {
-      xAdvance = w;  // Don't know why it exists
-    }
-
-    block_w = xAdvance * textsize_x;
-    block_h = yAdvance * textsize_y;
-    curY = y - (baseline * textsize_y);
-    if (
-        (x > _max_text_x) ||                  // Clip right
-        (curY > _max_text_y) ||               // Clip bottom
-        ((x + block_w - 1) < _min_text_x) ||  // Clip left
-        ((y + block_h - 1) < _min_text_y)     // Clip top
-    )
-    {
-      return;
-    }
-
-    // NOTE: Different from Adafruit_GFX design, Arduino_GFX also cater background.
-    // Since it may introduce many ugly output, it should limited using on mono font only.
-    startWrite();
-    if (bg != color)  // have background color
-    {
-      curW = block_w;
-      while ((x + curW - 1) > _max_text_x)
-      {
-        curW -= textsize_x;
-      }
-      curH = block_h;
-      while ((curY + curH - 1) > _max_text_y)
-      {
-        curH -= textsize_y;
-      }
-      writeFillRect(x, curY, curW, curH, bg);
-    }
-    if (textsize_x == 1 && textsize_y == 1)
-    {
-      curY = y + yo;
-      for (yy = 0; yy < h; ++yy, ++curY)
-      {
-        if (curY <= _max_text_y)
-        {
-          curX = x + xo;
-          for (xx = 0; xx < w; ++xx, ++curX, bits <<= 1)
-          {
-            if (!(bit++ & 7))
-            {
-              bits = pgm_read_byte(&bitmap[bo++]);
-            }
-            if (curX <= _max_text_x)
-            {
-              if (bits & 0x80)
-              {
-                writePixel(curX, curY, color);
-              }
-            }
-          }
-        }
-      }
-    }
-    else  // (textsize_x > 1 || textsize_y > 1)
-    {
-      curY = y + (yo16 * textsize_y);
-      for (yy = 0; yy < h; ++yy, curY += textsize_y)
-      {
-        if ((curY + textsize_y - 1) <= _max_text_y)
-        {
-          curX = x + (xo16 * textsize_x);
-          for (xx = 0; xx < w; ++xx, curX += textsize_x, bits <<= 1)
-          {
-            if (!(bit++ & 7))
-            {
-              bits = pgm_read_byte(&bitmap[bo++]);
-            }
-            if ((curX + textsize_x - 1) <= _max_text_x)
-            {
-              if (bits & 0x80)
-              {
-                writeFillRect(curX, curY, textsize_x - text_pixel_margin, textsize_y - text_pixel_margin, color);
-              }
-            }
-          }
-        }
-      }
-    }
-    endWrite();
-  }
-  else  // 'Classic' built-in font
-#endif  // !defined(ATTINY_CORE)
-#if defined(U8G2_FONT_SUPPORT)
-      if (u8g2Font)
+  if (u8g2Font)
   {
     _u8g2_target_y = y - ((_u8g2_char_height + _u8g2_char_y) * textsize_y);
     if (_u8g2_target_y > _max_text_y)
@@ -1431,7 +1302,6 @@ void Arduino_GFX::drawChar(int16_t x, int16_t y, unsigned char c, uint16_t color
     }
   }
   else  // glcdfont
-#endif  // defined(U8G2_FONT_SUPPORT)
   {
     block_w = 6 * textsize_x;
     block_h = 8 * textsize_y;
@@ -1541,38 +1411,7 @@ void Arduino_GFX::drawChar(int16_t x, int16_t y, unsigned char c, uint16_t color
 /**************************************************************************/
 size_t Arduino_GFX::write(uint8_t c)
 {
-#if !defined(ATTINY_CORE)
-  if (gfxFont)  // custom font
-  {
-    if (c == '\n')  // Newline
-    {
-      cursor_x = _min_text_x;  // Reset x to zero, advance y by one line
-      cursor_y += (int16_t)textsize_y * pgm_read_byte(&gfxFont->yAdvance);
-    }
-    else if (c != '\r')  // Not a carriage return; is normal char
-    {
-      uint16_t first = pgm_read_word(&gfxFont->first),
-               last = pgm_read_word(&gfxFont->last);
-      if ((c >= first) && (c <= last))  // Char present in this font?
-      {
-        GFXglyph* glyph = pgm_read_glyph_ptr(gfxFont, c - first);
-        uint8_t gw = pgm_read_byte(&glyph->width),
-                xa = pgm_read_byte(&glyph->xAdvance);
-        int8_t xo = pgm_read_sbyte(&glyph->xOffset);
-        if (wrap && ((cursor_x + ((xo + gw) * textsize_x) - 1) > _max_text_x))
-        {
-          cursor_x = _min_text_x;  // Reset x to zero, advance y by one line
-          cursor_y += (int16_t)textsize_y * pgm_read_byte(&gfxFont->yAdvance);
-        }
-        drawChar(cursor_x, cursor_y, c, textcolor, textbgcolor);
-        cursor_x += (int16_t)textsize_x * xa;
-      }
-    }
-  }
-  else  // not gfxFont
-#endif  // !defined(ATTINY_CORE)
-#if defined(U8G2_FONT_SUPPORT)
-      if (u8g2Font)
+  if (u8g2Font)
   {
     _u8g2_decode_ptr = 0;
 
@@ -1657,7 +1496,6 @@ size_t Arduino_GFX::write(uint8_t c)
             font += pgm_read_byte(font + 1);
           }
         }
-#ifdef U8G2_WITH_UNICODE
         else
         {
           uint16_t e;
@@ -1687,7 +1525,6 @@ size_t Arduino_GFX::write(uint8_t c)
             font += pgm_read_byte(font + 2);
           }
         }
-#endif
 
         if (glyph_data)
         {
@@ -1719,7 +1556,6 @@ size_t Arduino_GFX::write(uint8_t c)
     }
   }
   else  // glcdfont
-#endif  // defined(U8G2_FONT_SUPPORT)
   {
     if (c == '\n')
     {                              // Newline?
@@ -1812,26 +1648,8 @@ void Arduino_GFX::setRotation(uint8_t r)
   setTextBound(0, 0, _width, _height);
 }
 
-#if !defined(ATTINY_CORE)
-/**************************************************************************/
-/*!
-  @brief  Set the font to display when print()ing, either custom or default
-  @param  f   The GFXfont object, if NULL use built in 6x8 font
-*/
-/**************************************************************************/
-void Arduino_GFX::setFont(const GFXfont* f)
-{
-  gfxFont = (GFXfont*)f;
-#if defined(U8G2_FONT_SUPPORT)
-  u8g2Font = NULL;
-#endif  // defined(U8G2_FONT_SUPPORT)
-}
-#endif  // !defined(ATTINY_CORE)
-
-#if defined(U8G2_FONT_SUPPORT)
 void Arduino_GFX::setFont(const uint8_t* font)
 {
-  gfxFont = NULL;
   u8g2Font = font;
 
   // extract from u8g2_read_font_info()
@@ -1878,9 +1696,7 @@ void Arduino_GFX::setFont(const uint8_t* font)
   /* offset 17 */
   _u8g2_start_pos_upper_A = u8g2_font_get_word(font, 17);
   _u8g2_start_pos_lower_a = u8g2_font_get_word(font, 19);
-#ifdef U8G2_WITH_UNICODE
   _u8g2_start_pos_unicode = u8g2_font_get_word(font, 21);
-#endif
   _u8g2_first_char = pgm_read_byte(font + 23);
   // log_d("_u8g2_start_pos_upper_A: %d, _u8g2_start_pos_lower_a: %d, _u8g2_start_pos_unicode: %d, _u8g2_first_char: %d",
   //       _u8g2_start_pos_upper_A, _u8g2_start_pos_lower_a, _u8g2_start_pos_unicode, _u8g2_first_char);
@@ -1890,7 +1706,6 @@ void Arduino_GFX::setUTF8Print(bool isEnable)
 {
   _enableUTF8Print = isEnable;
 }
-#endif  // defined(U8G2_FONT_SUPPORT)
 
 /**************************************************************************/
 /*!
@@ -1917,253 +1732,201 @@ void Arduino_GFX::getTextBounds(const char* str, int16_t x, int16_t y, int16_t& 
 
   while ((c = *str++))
   {
-    // Інлайн тіло charBounds - тепер працюємо з curr_x і curr_y
-    if (gfxFont)  // custom font
+    if (u8g2Font)
     {
-      if (c == '\n')  // Newline
-      {
-        curr_x = _min_text_x;  // Reset x to zero, advance y by one line
-        curr_y += (int16_t)textsize_y * (uint8_t)pgm_read_byte(&gfxFont->yAdvance);
-      }
-      else if (c != '\r')  // Not a carriage return; is normal char
-      {
-        uint8_t first = pgm_read_byte(&gfxFont->first),
-                last = pgm_read_byte(&gfxFont->last);
-        if ((c >= first) && (c <= last))  // Char present in this font?
-        {
-          GFXglyph* glyph = pgm_read_glyph_ptr(gfxFont, c - first);
-          uint8_t gw = pgm_read_byte(&glyph->width),
-                  gh = pgm_read_byte(&glyph->height),
-                  xa = pgm_read_byte(&glyph->xAdvance);
-          int8_t xo = pgm_read_sbyte(&glyph->xOffset),
-                 yo = pgm_read_sbyte(&glyph->yOffset);
-          if (wrap && ((curr_x + ((xo + gw) * textsize_x) - 1) > _max_text_x))
-          {
-            curr_x = _min_text_x;  // Reset x to zero, advance y by one line
-            curr_y += (int16_t)textsize_y * (uint8_t)pgm_read_byte(&gfxFont->yAdvance);
-          }
-          int16_t x1_tmp = curr_x + ((int16_t)xo * textsize_x),
-                  y1_tmp = curr_y + ((int16_t)yo * textsize_y),
-                  x2 = x1_tmp + ((int16_t)gw * textsize_x) - 1,
-                  y2 = y1_tmp + ((int16_t)gh * textsize_y) - 1;
-          if (x1_tmp < minx)
-          {
-            minx = x1_tmp;
-          }
-          if (y1_tmp < miny)
-          {
-            miny = y1_tmp;
-          }
-          if (x2 > maxx)
-          {
-            maxx = x2;
-          }
-          if (y2 > maxy)
-          {
-            maxy = y2;
-          }
-          curr_x += (int16_t)textsize_x * xa;
-        }
-      }
-    }
-    else  // not gfxFont
-    {
-      if (u8g2Font)
-      {
-        _u8g2_decode_ptr = 0;
+      _u8g2_decode_ptr = 0;
 
-        if (_enableUTF8Print)
+      if (_enableUTF8Print)
+      {
+        if (_utf8_state == 0)
         {
-          if (_utf8_state == 0)
+          if (c >= 0xfc) /* 6 byte sequence */
           {
-            if (c >= 0xfc) /* 6 byte sequence */
+            _utf8_state = 5;
+            c &= 1;
+          }
+          else if (c >= 0xf8)
+          {
+            _utf8_state = 4;
+            c &= 3;
+          }
+          else if (c >= 0xf0)
+          {
+            _utf8_state = 3;
+            c &= 7;
+          }
+          else if (c >= 0xe0)
+          {
+            _utf8_state = 2;
+            c &= 15;
+          }
+          else if (c >= 0xc0)
+          {
+            _utf8_state = 1;
+            c &= 0x01f;
+          }
+          _encoding = c;
+        }
+        else
+        {
+          _utf8_state--;
+          /* The case b < 0x080 (an illegal UTF8 encoding) is not checked here. */
+          _encoding <<= 6;
+          c &= 0x03f;
+          _encoding |= c;
+        }
+      }  // _enableUTF8Print
+      else
+      {
+        _encoding = c;
+      }
+
+      if (_utf8_state == 0)
+      {
+        if (_encoding == '\n')
+        {
+          curr_x = _min_text_x;
+          curr_y += (int16_t)textsize_y * _u8g2_max_char_height;
+        }
+        else if (_encoding != '\r')
+        {  // Ignore carriage returns
+          const uint8_t* font = u8g2Font;
+          const uint8_t* glyph_data = 0;
+
+          // extract from u8g2_font_get_glyph_data()
+          font += 23;  // U8G2_FONT_DATA_STRUCT_SIZE
+          if (_encoding <= 255)
+          {
+            if (_encoding >= 'a')
             {
-              _utf8_state = 5;
-              c &= 1;
+              font += _u8g2_start_pos_lower_a;
             }
-            else if (c >= 0xf8)
+            else if (_encoding >= 'A')
             {
-              _utf8_state = 4;
-              c &= 3;
+              font += _u8g2_start_pos_upper_A;
             }
-            else if (c >= 0xf0)
+
+            for (;;)
             {
-              _utf8_state = 3;
-              c &= 7;
+              if (pgm_read_byte(font + 1) == 0)
+                break;
+              if (pgm_read_byte(font) == _encoding)
+              {
+                glyph_data = font + 2; /* skip encoding and glyph size */
+              }
+              font += pgm_read_byte(font + 1);
             }
-            else if (c >= 0xe0)
-            {
-              _utf8_state = 2;
-              c &= 15;
-            }
-            else if (c >= 0xc0)
-            {
-              _utf8_state = 1;
-              c &= 0x01f;
-            }
-            _encoding = c;
           }
           else
           {
-            _utf8_state--;
-            /* The case b < 0x080 (an illegal UTF8 encoding) is not checked here. */
-            _encoding <<= 6;
-            c &= 0x03f;
-            _encoding |= c;
-          }
-        }  // _enableUTF8Print
-        else
-        {
-          _encoding = c;
-        }
+            uint16_t e;
+            font += _u8g2_start_pos_unicode;
+            const uint8_t* unicode_lookup_table = font;
 
-        if (_utf8_state == 0)
-        {
-          if (_encoding == '\n')
+            /* issue 596: search for the glyph start in the unicode lookup table */
+            do
+            {
+              font += u8g2_font_get_word(unicode_lookup_table, 0);
+              e = u8g2_font_get_word(unicode_lookup_table, 2);
+              unicode_lookup_table += 4;
+            } while (e < _encoding);
+
+            for (;;)
+            {
+              e = u8g2_font_get_word(font, 0);
+
+              if (e == 0)
+                break;
+
+              if (e == _encoding)
+              {
+                glyph_data = font + 3; /* skip encoding and glyph size */
+                break;
+              }
+              font += pgm_read_byte(font + 2);
+            }
+          }
+
+          if (glyph_data)
           {
-            curr_x = _min_text_x;
-            curr_y += (int16_t)textsize_y * _u8g2_max_char_height;
-          }
-          else if (_encoding != '\r')
-          {  // Ignore carriage returns
-            const uint8_t* font = u8g2Font;
-            const uint8_t* glyph_data = 0;
+            // u8g2_font_decode_glyph
+            _u8g2_decode_ptr = glyph_data;
+            _u8g2_decode_bit_pos = 0;
 
-            // extract from u8g2_font_get_glyph_data()
-            font += 23;  // U8G2_FONT_DATA_STRUCT_SIZE
-            if (_encoding <= 255)
+            _u8g2_char_width = u8g2_font_decode_get_unsigned_bits(_u8g2_bits_per_char_width);
+            _u8g2_char_height = u8g2_font_decode_get_unsigned_bits(_u8g2_bits_per_char_height);
+            _u8g2_char_x = u8g2_font_decode_get_signed_bits(_u8g2_bits_per_char_x);
+            _u8g2_char_y = u8g2_font_decode_get_signed_bits(_u8g2_bits_per_char_y);
+            _u8g2_delta_x = u8g2_font_decode_get_signed_bits(_u8g2_bits_per_delta_x);
+
+            if (_u8g2_char_width > 0)
             {
-              if (_encoding >= 'a')
+              if (wrap && ((curr_x + (textsize_x * _u8g2_char_width) - 1) > _max_text_x))
               {
-                font += _u8g2_start_pos_lower_a;
-              }
-              else if (_encoding >= 'A')
-              {
-                font += _u8g2_start_pos_upper_A;
-              }
-
-              for (;;)
-              {
-                if (pgm_read_byte(font + 1) == 0)
-                  break;
-                if (pgm_read_byte(font) == _encoding)
-                {
-                  glyph_data = font + 2; /* skip encoding and glyph size */
-                }
-                font += pgm_read_byte(font + 1);
-              }
-            }
-            else
-            {
-              uint16_t e;
-              font += _u8g2_start_pos_unicode;
-              const uint8_t* unicode_lookup_table = font;
-
-              /* issue 596: search for the glyph start in the unicode lookup table */
-              do
-              {
-                font += u8g2_font_get_word(unicode_lookup_table, 0);
-                e = u8g2_font_get_word(unicode_lookup_table, 2);
-                unicode_lookup_table += 4;
-              } while (e < _encoding);
-
-              for (;;)
-              {
-                e = u8g2_font_get_word(font, 0);
-
-                if (e == 0)
-                  break;
-
-                if (e == _encoding)
-                {
-                  glyph_data = font + 3; /* skip encoding and glyph size */
-                  break;
-                }
-                font += pgm_read_byte(font + 2);
+                curr_x = _min_text_x;
+                curr_y += (int16_t)textsize_y * _u8g2_max_char_height;
               }
             }
 
-            if (glyph_data)
+            int16_t x1_tmp = curr_x + ((int16_t)_u8g2_char_x * textsize_x),
+                    y1_tmp = curr_y - (((int16_t)_u8g2_char_height + _u8g2_char_y) * textsize_y),
+                    x2 = x1_tmp + ((int16_t)_u8g2_char_width * textsize_x) - 1,
+                    y2 = y1_tmp + ((int16_t)_u8g2_char_height * textsize_y) - 1;
+            if (x1_tmp < minx)
             {
-              // u8g2_font_decode_glyph
-              _u8g2_decode_ptr = glyph_data;
-              _u8g2_decode_bit_pos = 0;
-
-              _u8g2_char_width = u8g2_font_decode_get_unsigned_bits(_u8g2_bits_per_char_width);
-              _u8g2_char_height = u8g2_font_decode_get_unsigned_bits(_u8g2_bits_per_char_height);
-              _u8g2_char_x = u8g2_font_decode_get_signed_bits(_u8g2_bits_per_char_x);
-              _u8g2_char_y = u8g2_font_decode_get_signed_bits(_u8g2_bits_per_char_y);
-              _u8g2_delta_x = u8g2_font_decode_get_signed_bits(_u8g2_bits_per_delta_x);
-
-              if (_u8g2_char_width > 0)
-              {
-                if (wrap && ((curr_x + (textsize_x * _u8g2_char_width) - 1) > _max_text_x))
-                {
-                  curr_x = _min_text_x;
-                  curr_y += (int16_t)textsize_y * _u8g2_max_char_height;
-                }
-              }
-
-              int16_t x1_tmp = curr_x + ((int16_t)_u8g2_char_x * textsize_x),
-                      y1_tmp = curr_y - (((int16_t)_u8g2_char_height + _u8g2_char_y) * textsize_y),
-                      x2 = x1_tmp + ((int16_t)_u8g2_char_width * textsize_x) - 1,
-                      y2 = y1_tmp + ((int16_t)_u8g2_char_height * textsize_y) - 1;
-              if (x1_tmp < minx)
-              {
-                minx = x1_tmp;
-              }
-              if (y1_tmp < miny)
-              {
-                miny = y1_tmp;
-              }
-              if (x2 > maxx)
-              {
-                maxx = x2;
-              }
-              if (y2 > maxy)
-              {
-                maxy = y2;
-              }
-              curr_x += (int16_t)textsize_x * _u8g2_delta_x;
+              minx = x1_tmp;
             }
+            if (y1_tmp < miny)
+            {
+              miny = y1_tmp;
+            }
+            if (x2 > maxx)
+            {
+              maxx = x2;
+            }
+            if (y2 > maxy)
+            {
+              maxy = y2;
+            }
+            curr_x += (int16_t)textsize_x * _u8g2_delta_x;
           }
         }
       }
-      else  // glcdfont
+    }
+    else  // glcdfont
+    {
+      if (c == '\n')
+      {                            // Newline?
+        curr_x = _min_text_x;      // Reset x to zero,
+        curr_y += textsize_y * 8;  // advance y one line
+                                   // min/max x/y unchaged -- that waits for next 'normal' character
+      }
+      else if (c != '\r')  // Normal char; ignore carriage returns
       {
-        if (c == '\n')
-        {                            // Newline?
+        if (wrap && ((curr_x + (textsize_x * 6) - 1) > _max_text_x))  // Off right?
+        {
           curr_x = _min_text_x;      // Reset x to zero,
           curr_y += textsize_y * 8;  // advance y one line
-                                     // min/max x/y unchaged -- that waits for next 'normal' character
         }
-        else if (c != '\r')  // Normal char; ignore carriage returns
+        int16_t x2 = curr_x + textsize_x * 6 - 1;  // Lower-right pixel of char
+        int16_t y2 = curr_y + textsize_y * 8 - 1;
+        if (x2 > maxx)
         {
-          if (wrap && ((curr_x + (textsize_x * 6) - 1) > _max_text_x))  // Off right?
-          {
-            curr_x = _min_text_x;      // Reset x to zero,
-            curr_y += textsize_y * 8;  // advance y one line
-          }
-          int16_t x2 = curr_x + textsize_x * 6 - 1;  // Lower-right pixel of char
-          int16_t y2 = curr_y + textsize_y * 8 - 1;
-          if (x2 > maxx)
-          {
-            maxx = x2;  // Track max x, y
-          }
-          if (y2 > maxy)
-          {
-            maxy = y2;
-          }
-          if (curr_x < minx)
-          {
-            minx = curr_x;  // Track min x, y
-          }
-          if (curr_y < miny)
-          {
-            miny = curr_y;
-          }
-          curr_x += textsize_x * 6;  // Advance x one char
+          maxx = x2;  // Track max x, y
         }
+        if (y2 > maxy)
+        {
+          maxy = y2;
+        }
+        if (curr_x < minx)
+        {
+          minx = curr_x;  // Track min x, y
+        }
+        if (curr_y < miny)
+        {
+          miny = curr_y;
+        }
+        curr_x += textsize_x * 6;  // Advance x one char
       }
     }
   }
