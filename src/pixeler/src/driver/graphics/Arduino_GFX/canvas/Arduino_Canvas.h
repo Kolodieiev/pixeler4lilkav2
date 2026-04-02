@@ -27,7 +27,6 @@ public:
   uint16_t* getDupFramebuffer();
 
 protected:
-  uint16_t* _framebuffer{nullptr};
   uint16_t* _framebuffer2{nullptr};
   Arduino_GFX* _output{nullptr};
   size_t _buff_size{0};

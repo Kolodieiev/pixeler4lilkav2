@@ -341,8 +341,9 @@ protected:
       int16_t framebuffer_h);
 
 protected:
-  const uint8_t* u8g2Font;
-  const uint8_t* _u8g2_decode_ptr;
+  const uint8_t* u8g2Font{nullptr};
+  const uint8_t* _u8g2_decode_ptr{nullptr};
+  uint16_t* _framebuffer{nullptr};
 
   const uint16_t WIDTH;   ///< This is the 'raw' display width - never changes
   const uint16_t HEIGHT;  ///< This is the 'raw' display height - never changes
@@ -354,20 +355,19 @@ protected:
   int16_t _u8g2_target_x;
   int16_t _u8g2_target_y;
 
-  int16_t
-      _width,   ///< Display width as modified by current rotation
-      _height,  ///< Display height as modified by current rotation
-      _max_x,   ///< x zero base bound (_width - 1)
-      _max_y,   ///< y zero base bound (_height - 1)
-      _min_text_x,
-      _min_text_y,
-      _max_text_x,
-      _max_text_y,
-      cursor_x,  ///< x location to start print()ing text
-      cursor_y;  ///< y location to start print()ing text
-  uint16_t
-      textcolor,    ///< 16-bit background color for print()
-      textbgcolor;  ///< 16-bit text color for print()
+  int16_t _width;   ///< Display width as modified by current rotation
+  int16_t _height;  ///< Display height as modified by current rotation
+  int16_t _max_x;   ///< x zero base bound (_width - 1)
+  int16_t _max_y;   ///< y zero base bound (_height - 1)
+  int16_t _min_text_x;
+  int16_t _min_text_y;
+  int16_t _max_text_x;
+  int16_t _max_text_y;
+  int16_t cursor_x;  ///< x location to start print()ing text
+  int16_t cursor_y;  ///< y location to start print()ing text
+
+  uint16_t textcolor;    ///< 16-bit background color for print()
+  uint16_t textbgcolor;  ///< 16-bit text color for print()
 
   uint8_t _utf8_state = 0;
   uint8_t _u8g2_glyph_cnt;
@@ -389,11 +389,10 @@ protected:
   int8_t _u8g2_dx;
   int8_t _u8g2_dy;
 
-  uint8_t
-      textsize_x,         ///< Desired magnification in X-axis of text to print()
-      textsize_y,         ///< Desired magnification in Y-axis of text to print()
-      text_pixel_margin,  ///< Margin for each text pixel
-      _rotation;          ///< Display rotation (0 thru 3)
+  uint8_t textsize_x;         ///< Desired magnification in X-axis of text to print()
+  uint8_t textsize_y;         ///< Desired magnification in Y-axis of text to print()
+  uint8_t text_pixel_margin;  ///< Margin for each text pixel
+  uint8_t _rotation;          ///< Display rotation (0 thru 3)
 
   uint8_t _u8g2_decode_bit_pos;
 
