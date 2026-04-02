@@ -345,6 +345,7 @@ protected:
   const uint8_t* _u8g2_decode_ptr{nullptr};
   uint16_t* _framebuffer{nullptr};
 
+  const uint32_t FRAMEBUFF_SIZE;
   const uint16_t WIDTH;   ///< This is the 'raw' display width - never changes
   const uint16_t HEIGHT;  ///< This is the 'raw' display height - never changes
 

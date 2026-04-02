@@ -22,7 +22,9 @@
   @param  h   Display height, in pixels
 */
 /**************************************************************************/
-Arduino_GFX::Arduino_GFX(int16_t w, int16_t h) : WIDTH(w), HEIGHT(h)
+Arduino_GFX::Arduino_GFX(int16_t w, int16_t h) : FRAMEBUFF_SIZE{static_cast<uint32_t>(w * h * sizeof(uint16_t))},
+                                                 WIDTH(w),
+                                                 HEIGHT(h)
 {
   _width = WIDTH;
   _height = HEIGHT;

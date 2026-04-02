@@ -31,15 +31,13 @@ bool Arduino_Canvas::begin(int32_t speed)
     esp_restart();
   }
 
-  _buff_size = _width * _height * sizeof(uint16_t);
-
   free(_framebuffer);
   _framebuffer = nullptr;
 
   if (psramInit())
-    _framebuffer = static_cast<uint16_t*>(ps_malloc(_buff_size));
+    _framebuffer = static_cast<uint16_t*>(heap_caps_aligned_alloc(64, FRAMEBUFF_SIZE, MALLOC_CAP_SPIRAM));
   else
-    _framebuffer = static_cast<uint16_t*>(aligned_alloc(16, _buff_size));
+    _framebuffer = static_cast<uint16_t*>(aligned_alloc(64, FRAMEBUFF_SIZE));
 
   if (!_framebuffer)
   {
@@ -56,7 +54,7 @@ bool Arduino_Canvas::begin(int32_t speed)
 
   free(_framebuffer2);
   _framebuffer2 = nullptr;
-  _framebuffer2 = static_cast<uint16_t*>(ps_malloc(_buff_size));
+  _framebuffer2 = static_cast<uint16_t*>(heap_caps_aligned_alloc(64, FRAMEBUFF_SIZE, MALLOC_CAP_SPIRAM));
 
   if (!_framebuffer2)
   {
@@ -361,7 +359,7 @@ void Arduino_Canvas::flushMainBuff()
 void Arduino_Canvas::duplicateMainBuff()
 {
 #ifdef DOUBLE_BUFFERRING
-  memcpy(_framebuffer2, _framebuffer, _buff_size);
+  memcpy(_framebuffer2, _framebuffer, FRAMEBUFF_SIZE);
 #else
   log_e("Подвійну буферизацію не було увімкнуто в налаштуваннях прошивки");
   esp_restart();
