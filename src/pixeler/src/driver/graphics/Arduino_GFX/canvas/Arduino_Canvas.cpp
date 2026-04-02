@@ -254,16 +254,16 @@ void Arduino_Canvas::draw16bitRGBBitmap(int16_t x, int16_t y, const uint16_t* bi
   switch (_rotation)
   {
     case 1:
-      gfx_draw_bitmap_to_framebuffer_rotate_1(bitmap, w, h, _framebuffer, x, y, _width, _height);
+      drawBitmapToFramebufferRotate1(bitmap, w, h, _framebuffer, x, y, _width, _height);
       break;
     case 2:
-      gfx_draw_bitmap_to_framebuffer_rotate_2(bitmap, w, h, _framebuffer, x, y, _width, _height);
+      drawBitmapToFramebufferRotate2(bitmap, w, h, _framebuffer, x, y, _width, _height);
       break;
     case 3:
-      gfx_draw_bitmap_to_framebuffer_rotate_3(bitmap, w, h, _framebuffer, x, y, _width, _height);
+      drawBitmapToFramebufferRotate3(bitmap, w, h, _framebuffer, x, y, _width, _height);
       break;
     default:  // case 0:
-      gfx_draw_bitmap_to_framebuffer(bitmap, w, h, _framebuffer, x, y, _width, _height);
+      drawBitmapToFramebuffer(bitmap, w, h, _framebuffer, x, y, _width, _height);
   }
 }
 

@@ -300,7 +300,7 @@ public:
   }
 
 protected:
-  void gfx_draw_bitmap_to_framebuffer(
+  void drawBitmapToFramebuffer(
       const uint16_t* from_bitmap,
       int16_t bitmap_w,
       int16_t bitmap_h,
@@ -310,7 +310,7 @@ protected:
       int16_t framebuffer_w,
       int16_t framebuffer_h);
 
-  void gfx_draw_bitmap_to_framebuffer_rotate_1(
+  void drawBitmapToFramebufferRotate1(
       const uint16_t* from_bitmap,
       int16_t bitmap_w,
       int16_t bitmap_h,
@@ -320,7 +320,7 @@ protected:
       int16_t framebuffer_w,
       int16_t framebuffer_h);
 
-  void gfx_draw_bitmap_to_framebuffer_rotate_2(
+  void drawBitmapToFramebufferRotate2(
       const uint16_t* from_bitmap,
       int16_t bitmap_w,
       int16_t bitmap_h,
@@ -330,7 +330,7 @@ protected:
       int16_t framebuffer_w,
       int16_t framebuffer_h);
 
-  void gfx_draw_bitmap_to_framebuffer_rotate_3(
+  void drawBitmapToFramebufferRotate3(
       const uint16_t* from_bitmap,
       int16_t bitmap_w,
       int16_t bitmap_h,

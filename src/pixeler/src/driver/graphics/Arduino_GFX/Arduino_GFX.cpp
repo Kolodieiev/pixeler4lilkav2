@@ -1965,7 +1965,7 @@ void Arduino_GFX::displayOff()
 {
 }
 
-void Arduino_GFX::gfx_draw_bitmap_to_framebuffer(
+void Arduino_GFX::drawBitmapToFramebuffer(
     const uint16_t* from_bitmap,
     int16_t bitmap_w,
     int16_t bitmap_h,
@@ -2050,7 +2050,7 @@ void Arduino_GFX::gfx_draw_bitmap_to_framebuffer(
   }
 }
 
-void Arduino_GFX::gfx_draw_bitmap_to_framebuffer_rotate_1(
+void Arduino_GFX::drawBitmapToFramebufferRotate1(
     const uint16_t* from_bitmap,
     int16_t bitmap_w,
     int16_t bitmap_h,
@@ -2116,7 +2116,7 @@ void Arduino_GFX::gfx_draw_bitmap_to_framebuffer_rotate_1(
   }
 }
 
-void Arduino_GFX::gfx_draw_bitmap_to_framebuffer_rotate_2(
+void Arduino_GFX::drawBitmapToFramebufferRotate2(
     const uint16_t* from_bitmap,
     int16_t bitmap_w,
     int16_t bitmap_h,
@@ -2181,7 +2181,7 @@ void Arduino_GFX::gfx_draw_bitmap_to_framebuffer_rotate_2(
   }
 }
 
-void Arduino_GFX::gfx_draw_bitmap_to_framebuffer_rotate_3(
+void Arduino_GFX::drawBitmapToFramebufferRotate3(
     const uint16_t* from_bitmap,
     int16_t bitmap_w,
     int16_t bitmap_h,
