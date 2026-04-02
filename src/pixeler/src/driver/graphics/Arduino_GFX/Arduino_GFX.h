@@ -94,7 +94,7 @@ public:
 
   // This MUST be defined by the subclass:
   virtual bool begin(int32_t speed = GFX_NOT_DEFINED) = 0;
-  virtual void writePixelPreclipped(int16_t x, int16_t y, uint16_t color) = 0;
+  virtual void writePixelPreclipped(int16_t x, int16_t y, uint16_t color);
 
   // TRANSACTION API / CORE DRAW API
   // These MAY be overridden by the subclass to provide device-specific

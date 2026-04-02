@@ -1247,6 +1247,11 @@ void Arduino_GFX::flushSecondBuff()
   log_e("Відсутня реалізація методу");
 }
 
+void Arduino_GFX::writePixelPreclipped(int16_t x, int16_t y, uint16_t color)
+{
+  log_e("Відсутня реалізація методу");
+}
+
 // TEXT- AND CHARACTER-HANDLING FUNCTIONS ----------------------------------
 
 // Draw a character
