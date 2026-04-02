@@ -34,10 +34,10 @@
 #define TFT_DC 15    //
 #define TFT_CS 7     // Якщо на шині SPI знаходиться тільки дисплей(що рекомендовано), вказати -1
 
-#define BACKLIGHT_PIN 46  // Закоментуй, якщо відсутній пін управління підсвіткою дисплея.
+#define PIN_DISPLAY_BL 46  // Закоментуй, якщо відсутній пін управління підсвіткою дисплея.
 // #define HAS_BL_PWM        // Закоментуй, якщо відсутнє управління яскравістю підсвітки дисплея.
-#define PWM_FREQ 3000     // Частота PWM підсвітки дисплея.
-#define PWM_RESOLUTION 8  //
+#define DISPLAY_BL_PWM_FREQ 3000     // Частота PWM підсвітки дисплея.
+#define DISPLAY_BL_PWM_RES 8  //
 
 #define DISPLAY_ROTATION 3  // Стартова орієнтація дисплея.
 
@@ -68,10 +68,10 @@
 // #define TFT_DC 8
 // #define TFT_RST -1
 
-// #define BACKLIGHT_PIN 1 // Закоментуй, якщо відсутній пін управління підсвіткою дисплея.
+// #define PIN_DISPLAY_BL 1 // Закоментуй, якщо відсутній пін управління підсвіткою дисплея.
 // #define HAS_BL_PWM      // Закоментуй, якщо відсутнє управління яскравістю підсвітки дисплея.
-// #define PWM_FREQ 3000   // Частота PWM підсвітки дисплея.
-// #define PWM_RESOLUTION 8
+// #define DISPLAY_BL_PWM_FREQ 3000   // Частота PWM підсвітки дисплея.
+// #define DISPLAY_BL_PWM_RES 8
 
 // #define DISPLAY_ROTATION 0 // Стартова орієнтація дисплея.
 

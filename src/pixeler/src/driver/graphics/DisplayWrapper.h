@@ -250,7 +250,7 @@ namespace pixeler
     void takeScreenshot();
 #endif  // ENABLE_SCREENSHOTER
 
-#ifdef BACKLIGHT_PIN
+#ifdef PIN_DISPLAY_BL
     /**
      * @brief Вмикає підсвітку дисплея зі 100% яскравістю.
      *
@@ -279,7 +279,7 @@ namespace pixeler
      */
     uint8_t getBrightness() const;
 #endif  // HAS_BL_PWM
-#endif  // BACKLIGHT_PIN
+#endif  // PIN_DISPLAY_BL
 
   private:
 #ifdef DOUBLE_BUFFERRING
@@ -299,9 +299,7 @@ namespace pixeler
 #endif  // #ifndef DIRECT_DRAWING
 #endif  // #ifdef GRAPHICS_ENABLED
 
-#ifdef DOUBLE_BUFFERRING
     volatile xSemaphoreHandle _sync_mutex{nullptr};
-#endif  // DOUBLE_BUFFERRING
 
 #ifdef SHOW_FPS
     uint64_t _frame_timer{0};
