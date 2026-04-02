@@ -1,10 +1,7 @@
 #pragma GCC optimize("O3")
+#pragma once
+
 #include "../Arduino_DataBus.h"
-#if !defined(LITTLE_FOOT_PRINT)
-
-#ifndef _ARDUINO_CANVAS_H_
-#define _ARDUINO_CANVAS_H_
-
 #include "../Arduino_GFX.h"
 
 class Arduino_Canvas : public Arduino_GFX
@@ -41,7 +38,3 @@ protected:
 
 private:
 };
-
-#endif  // _ARDUINO_CANVAS_H_
-
-#endif  // !defined(LITTLE_FOOT_PRINT)

@@ -3,8 +3,7 @@
  * start rewrite from:
  * https://github.com/adafruit/Adafruit-GFX-Library.git
  */
-#ifndef _ARDUINO_GFX_H_
-#define _ARDUINO_GFX_H_
+#pragma once
 
 #include <Print.h>
 
@@ -51,32 +50,11 @@
 // for compatibility with existing PROGMEM-reading AVR code.
 // Do our own checks and defines here for good measure...
 
-#ifndef pgm_read_byte
-#define pgm_read_byte(addr) (*(const unsigned char*)(addr))
-#endif
 #ifndef pgm_read_sbyte
 #define pgm_read_sbyte(addr) (*(const signed char*)(addr))
 #endif
-#ifndef pgm_read_word
-#define pgm_read_word(addr) (*(const unsigned short*)(addr))
-#endif
-#ifndef pgm_read_dword
-#define pgm_read_dword(addr) (*(const unsigned long*)(addr))
-#endif
-// workaround of a15 asm compile error
-#ifdef ESP8266
-#undef pgm_read_word
-#define pgm_read_word(addr) (*(const unsigned short*)(addr))
-#endif
 
-// Pointers are a peculiar case...typically 16-bit on AVR boards,
-// 32 bits elsewhere.  Try to accommodate both...
-
-#if !defined(__INT_MAX__) || (__INT_MAX__ > 0xFFFF)
 #define pgm_read_pointer(addr) ((void*)pgm_read_dword(addr))
-#else
-#define pgm_read_pointer(addr) ((void*)pgm_read_word(addr))
-#endif
 
 #ifndef _swap_uint8_t
 #define _swap_uint8_t(a, b) \
@@ -324,7 +302,6 @@ public:
   }
 
 protected:
-
   const uint8_t* u8g2Font;
   const uint8_t* _u8g2_decode_ptr;
   int16_t* _roundMinX;
@@ -384,5 +361,3 @@ protected:
   bool _enableUTF8Print = false;
   bool wrap;  ///< If set, 'wrap' text at right edge of display
 };
-
-#endif  // _ARDUINO_GFX_H_

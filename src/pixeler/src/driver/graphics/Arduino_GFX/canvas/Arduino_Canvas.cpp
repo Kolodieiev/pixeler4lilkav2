@@ -1,6 +1,5 @@
 #pragma GCC optimize("O3")
 #include "../Arduino_DataBus.h"
-#if !defined(LITTLE_FOOT_PRINT)
 
 #include "pixeler/setup/graphics_setup.h"
 #include "../Arduino_GFX.h"
@@ -393,5 +392,3 @@ uint16_t* Arduino_Canvas::getDupFramebuffer()
   esp_restart();
 #endif  // DOUBLE_BUFFERRING
 }
-
-#endif  // !defined(LITTLE_FOOT_PRINT)
