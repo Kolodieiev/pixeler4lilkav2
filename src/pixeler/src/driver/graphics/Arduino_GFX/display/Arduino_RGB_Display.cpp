@@ -218,7 +218,6 @@ void Arduino_RGB_Display::writeFastHLineCore(int16_t x, int16_t y, int16_t w, ui
         x += COL_OFFSET1;
         y += ROW_OFFSET1;
         uint16_t* fb = _framebuffer + ((int32_t)y * _fb_width) + x;
-        uint32_t cachePos = (uint32_t)fb;
         int16_t writeSize = w * 2;
         while (w--)
         {
@@ -262,11 +261,10 @@ void Arduino_RGB_Display::writeFillRectPreclipped(int16_t x, int16_t y, int16_t 
   y += ROW_OFFSET1;
   uint16_t* row = _framebuffer;
   row += y * _fb_width;
-  uint32_t cachePos = (uint32_t)row;
   row += x;
-  for (int j = 0; j < h; j++)
+  for (int j = 0; j < h; ++j)
   {
-    for (int i = 0; i < w; i++)
+    for (int i = 0; i < w; ++i)
     {
       row[i] = color;
     }
