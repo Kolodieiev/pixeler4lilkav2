@@ -290,18 +290,6 @@ void Arduino_TFT::draw16bitRGBBitmap(
   {
     return;
   }
-  else if (_isRoundMode)
-  {
-    if (
-        (x > _roundMaxX[y + h - 1]) &&         // top left
-        ((x + w - 1) < _roundMinX[y]) &&       // top right
-        (x > _roundMaxX[y + h - 1]) &&         // bottom left
-        ((x + w - 1) < _roundMinX[y + h - 1])  // bottom right
-    )
-    {
-      return;
-    }
-  }
   else if (
       ((x + w - 1) < 0) ||  // Outside left
       (x > _max_x)          // Outside right

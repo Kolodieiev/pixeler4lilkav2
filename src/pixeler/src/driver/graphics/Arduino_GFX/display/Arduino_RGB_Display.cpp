@@ -276,22 +276,6 @@ void Arduino_RGB_Display::writeFillRectPreclipped(int16_t x, int16_t y, int16_t 
 
 void Arduino_RGB_Display::draw16bitRGBBitmap(int16_t x, int16_t y, const uint16_t* bitmap, int16_t w, int16_t h)
 {
-  if (_isRoundMode)
-  {
-    if (
-        ((y + h - 1) < 0) ||  // Outside top
-        (y > _max_y) ||       // Outside bottom
-        (
-            (x > _roundMaxX[y + h - 1]) &&         // top left
-            ((x + w - 1) < _roundMinX[y]) &&       // top right
-            (x > _roundMaxX[y + h - 1]) &&         // bottom left
-            ((x + w - 1) < _roundMinX[y + h - 1])  // bottom right
-            ))
-    {
-      return;
-    }
-  }
-
   x += COL_OFFSET1;
   y += ROW_OFFSET1;
   switch (_rotation)

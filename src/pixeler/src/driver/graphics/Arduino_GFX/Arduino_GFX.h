@@ -112,7 +112,6 @@ public:
   virtual void invertDisplay(bool i);
   virtual void displayOn();
   virtual void displayOff();
-  bool enableRoundMode();
 
   // BASIC DRAW API
   // These MAY be overridden by the subclass to provide device-specific
@@ -344,8 +343,6 @@ protected:
 protected:
   const uint8_t* u8g2Font;
   const uint8_t* _u8g2_decode_ptr;
-  int16_t* _roundMinX;
-  int16_t* _roundMaxX;
 
   const uint16_t WIDTH;   ///< This is the 'raw' display width - never changes
   const uint16_t HEIGHT;  ///< This is the 'raw' display height - never changes
@@ -400,7 +397,6 @@ protected:
 
   uint8_t _u8g2_decode_bit_pos;
 
-  bool _isRoundMode = false; // TODO
   bool _enableUTF8Print = false;
   bool wrap;  ///< If set, 'wrap' text at right edge of display
 };
