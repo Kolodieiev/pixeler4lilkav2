@@ -218,7 +218,7 @@ void Mp3Context::showPlaying()
   // після увімкнення підсвітки
   _is_new_track = true;
 
-  layout->forcedDraw();
+  layout->drawForced();
 }
 
 void Mp3Context::showTracksTmpl()

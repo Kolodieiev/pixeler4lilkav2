@@ -20,12 +20,12 @@
 #endif  // #ifndef DIRECT_DRAWING
 
 //-----------------------------------------------------------------------------------------------------------------------------
-#define BUSS_FREQUENCY 80000000  // Частота шини дисплею.
+#define BUSS_FREQUENCY 80000000  // Частота шини дисплея.
 
 #define TFT_WIDTH 280   // Ширина дисплея(канвасу).
 #define TFT_HEIGHT 240  // Висота дисплея(канвасу).
 
-#define SPI_PORT HSPI  // Порт, на якому працюватиме шина SPI дисплею.
+#define SPI_PORT HSPI  // Порт, на якому працюватиме шина SPI дисплея.
 //
 #define TFT_MOSI 17  // sda.
 #define TFT_SCLK 18  // scl.
@@ -56,8 +56,8 @@
 
 // #define BUSS_FREQUENCY 60000000
 
-// #define TFT_WIDTH 320  // Ширина дисплею.
-// #define TFT_HEIGHT 480 // Висота дисплею.
+// #define TFT_WIDTH 320  // Ширина дисплея.
+// #define TFT_HEIGHT 480 // Висота дисплея.
 
 // #define TFT_CS 45
 // #define TFT_SCLK 47

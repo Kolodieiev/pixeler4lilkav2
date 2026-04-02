@@ -39,7 +39,7 @@ namespace pixeler
     }
 
     /**
-     * @brief Відмальовує попередню сторінку меню.
+     * @brief Рендерить попередню сторінку меню.
      *
      * @return true - Якщо операцію виконано успішно.
      * @return false - Інакше.
@@ -47,7 +47,7 @@ namespace pixeler
     virtual bool pageUp() override;
 
     /**
-     * @brief Відмальовує наступну сторінку меню.
+     * @brief Рендерить наступну сторінку меню.
      *
      * @return true - Якщо операцію виконано успішно.
      * @return false - Інакше.

@@ -28,7 +28,7 @@ bool Arduino_Canvas::begin(int32_t speed)
 {
   if (!_output->begin(speed))
   {
-    log_e("Помилка ініціалізації драйвера дисплею");
+    log_e("Помилка ініціалізації драйвера дисплея");
     esp_restart();
   }
 
@@ -44,7 +44,7 @@ bool Arduino_Canvas::begin(int32_t speed)
 
   if (!_framebuffer)
   {
-    log_e("Помилка виділення пам'яті для буферів дисплею");
+    log_e("Помилка виділення пам'яті для буферів дисплея");
     esp_restart();
   }
 
@@ -61,7 +61,7 @@ bool Arduino_Canvas::begin(int32_t speed)
 
   if (!_framebuffer2)
   {
-    log_e("Помилка виділення пам'яті для буферів дисплею");
+    log_e("Помилка виділення пам'яті для буферів дисплея");
     esp_restart();
   }
 
