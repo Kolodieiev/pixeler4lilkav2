@@ -108,13 +108,6 @@ namespace pixeler
     void calcTextBounds(const char* str, int16_t x, int16_t y, int16_t& x_out, int16_t& y_out, uint16_t& w_out, uint16_t& h_out);
 
     /**
-     * @brief Встановлює поточний поворот канвасу відносно дисплея.
-     *
-     * @param rotation
-     */
-    void setRotation(uint8_t rotation);
-
-    /**
      * @brief Встановлює колір пікселя на канвасі.
      *
      * @param x X-координата пікселя для якого необхідно встановити колір.

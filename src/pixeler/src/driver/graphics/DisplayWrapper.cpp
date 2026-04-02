@@ -111,13 +111,6 @@ namespace pixeler
 #endif  // #ifdef GRAPHICS_ENABLED
   }
 
-  void DisplayWrapper::setRotation(uint8_t rotation)
-  {
-#ifdef GRAPHICS_ENABLED
-    _output->setRotation(rotation);
-#endif  // #ifdef GRAPHICS_ENABLED
-  }
-
   void DisplayWrapper::drawPixel(int16_t x, int16_t y, uint16_t color)
   {
 #ifdef GRAPHICS_ENABLED
