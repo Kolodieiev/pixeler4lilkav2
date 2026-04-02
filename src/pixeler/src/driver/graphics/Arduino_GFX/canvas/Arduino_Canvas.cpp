@@ -1,9 +1,9 @@
 #pragma GCC optimize("O3")
-#include "../Arduino_DataBus.h"
-
-#include "pixeler/setup/graphics_setup.h"
-#include "../Arduino_GFX.h"
 #include "Arduino_Canvas.h"
+
+#include "../Arduino_DataBus.h"
+#include "../Arduino_GFX.h"
+#include "pixeler/setup/graphics_setup.h"
 
 Arduino_Canvas::Arduino_Canvas(
     int16_t w,
@@ -233,7 +233,10 @@ void Arduino_Canvas::writeFillRectPreclipped(int16_t x, int16_t y, int16_t w, in
         break;
     }
   }
-  // log_i("adjusted writeFillRectPreclipped(x: %d, y: %d, w: %d, h: %d)", x, y, w, h);
+  
+#if CONFIG_IDF_TARGET_ESP32P4
+  ppaFill(x, y, w, h, color);
+#else
   uint16_t* row = _framebuffer;
   row += y * WIDTH;
   row += x;
@@ -245,10 +248,19 @@ void Arduino_Canvas::writeFillRectPreclipped(int16_t x, int16_t y, int16_t w, in
     }
     row += WIDTH;
   }
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
 }
 
 void Arduino_Canvas::draw16bitRGBBitmap(int16_t x, int16_t y, const uint16_t* bitmap, int16_t w, int16_t h)
 {
+  if (
+      ((x + w - 1) < 0) ||  // Outside left
+      ((y + h - 1) < 0) ||  // Outside top
+      (x > MAX_X) ||        // Outside right
+      (y > MAX_Y)           // Outside bottom
+  )
+    return;
+
   switch (_rotation)
   {
     case 1:

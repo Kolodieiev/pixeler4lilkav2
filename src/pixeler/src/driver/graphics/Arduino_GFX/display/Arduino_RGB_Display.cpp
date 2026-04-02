@@ -20,7 +20,16 @@ Arduino_RGB_Display::Arduino_RGB_Display(
     uint8_t row_offset1,
     uint8_t col_offset2,
     uint8_t row_offset2)
-    : Arduino_GFX(w, h), _rgbpanel(rgbpanel), _bus(bus), _rst(rst), _init_operations(init_operations), _init_operations_len(init_operations_len), COL_OFFSET1(col_offset1), ROW_OFFSET1(row_offset1), COL_OFFSET2(col_offset2), ROW_OFFSET2(row_offset2)
+    : Arduino_GFX(w, h),
+      _rgbpanel(rgbpanel),
+      _bus(bus),
+      _rst(rst),
+      _init_operations(init_operations),
+      _init_operations_len(init_operations_len),
+      COL_OFFSET1(col_offset1),
+      ROW_OFFSET1(row_offset1),
+      COL_OFFSET2(col_offset2),
+      ROW_OFFSET2(row_offset2)
 {
   _fb_width = COL_OFFSET1 + WIDTH + COL_OFFSET2;
   _fb_height = ROW_OFFSET1 + HEIGHT + ROW_OFFSET2;
@@ -276,6 +285,15 @@ void Arduino_RGB_Display::draw16bitRGBBitmap(int16_t x, int16_t y, const uint16_
 {
   x += COL_OFFSET1;
   y += ROW_OFFSET1;
+
+  if (
+      ((x + w - 1) < 0) ||  // Outside left
+      ((y + h - 1) < 0) ||  // Outside top
+      (x > MAX_X) ||        // Outside right
+      (y > MAX_Y)           // Outside bottom
+  )
+    return;
+
   switch (_rotation)
   {
     case 1:

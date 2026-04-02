@@ -523,7 +523,15 @@ void Arduino_DSI_Display::draw16bitRGBBitmap(int16_t x, int16_t y, const uint16_
   _draw_buffer = _lcd_draw_buffers[_back_fb_i];
   _back_fb_i = 1 - _back_fb_i;
 
-  memcpy(_draw_buffer, bitmap, FRAMEBUFF_SIZE);
+  if (_rotation == 1)
+    ppaRotate(bitmap, w, h, 0, 0, _draw_buffer, WIDTH, HEIGHT, PPA_SRM_ROTATION_ANGLE_270);
+  else if (_rotation == 2)
+    ppaRotate(bitmap, w, h, 0, 0, _draw_buffer, WIDTH, HEIGHT, PPA_SRM_ROTATION_ANGLE_180);
+  else if (_rotation == 3)
+    ppaRotate(bitmap, w, h, 0, 0, _draw_buffer, WIDTH, HEIGHT, PPA_SRM_ROTATION_ANGLE_90);
+  else
+    memcpy(_draw_buffer, bitmap, FRAMEBUFF_SIZE);
+
   esp_lcd_panel_draw_bitmap(_panel_handle, 0, 0, WIDTH, HEIGHT, _draw_buffer);
 }
 

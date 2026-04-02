@@ -7,6 +7,10 @@
 
 #include <Print.h>
 
+#if CONFIG_IDF_TARGET_ESP32P4
+#include <driver/ppa.h>
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
+
 #include "Arduino_DataBus.h"
 
 #ifndef DEGTORAD
@@ -340,10 +344,35 @@ protected:
       int16_t framebuffer_w,
       int16_t framebuffer_h);
 
+#if CONFIG_IDF_TARGET_ESP32P4
+  void ppaFill(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color);
+  void ppaRotate(const void* buff_from,
+                 uint16_t buff_f_w,
+                 uint16_t buff_f_h,
+                 uint16_t x,
+                 uint16_t y,
+                 void* buff_to,
+                 uint16_t buff_t_w,
+                 uint16_t buff_t_h,
+                 ppa_srm_rotation_angle_t angle);
+
+  uint32_t color16RGBTo24RGB(uint16_t color565);
+
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
+
 protected:
+#if CONFIG_IDF_TARGET_ESP32P4
+  ppa_client_handle_t _ppa_fill{nullptr};
+  ppa_client_handle_t _ppa_srm{nullptr};
+
+  ppa_fill_oper_config_t _fill_oper;
+  ppa_srm_oper_config_t _srm_oper;
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
+
+  uint16_t* _framebuffer{nullptr};
+
   const uint8_t* u8g2Font{nullptr};
   const uint8_t* _u8g2_decode_ptr{nullptr};
-  uint16_t* _framebuffer{nullptr};
 
   const uint32_t FRAMEBUFF_SIZE;
   const uint16_t WIDTH;   ///< This is the 'raw' display width - never changes

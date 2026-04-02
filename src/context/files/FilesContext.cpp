@@ -133,7 +133,7 @@ void FilesContext::showServerTmpl()
     _qr_img->setWidth(_qr_width);
     _qr_img->setHeight(_qr_width);
     _qr_img->setSrc(_qr_img_buff);
-    _qr_img->setPos((TFT_WIDTH - _qr_width) / 2, (TFT_HEIGHT - _qr_width) / 2);
+    _qr_img->setPos((UI_WIDTH - _qr_width) / 2, (UI_HEIGHT - _qr_width) / 2);
   }
 
   _mode = MODE_FILE_SERVER;
@@ -154,10 +154,10 @@ void FilesContext::showCopyingTmpl()
   _task_progress->setProgressColor(COLOR_ORANGE);
   _task_progress->setBorderColor(COLOR_WHITE);
   _task_progress->setMax(100);
-  _task_progress->setWidth(TFT_WIDTH - 5 * 8);
+  _task_progress->setWidth(UI_WIDTH - 5 * 8);
   _task_progress->setHeight(20);
   _task_progress->setProgress(0);
-  _task_progress->setPos((TFT_WIDTH - _task_progress->getWidth()) / 2, TFT_HEIGHT / 2 + 2);
+  _task_progress->setPos((UI_WIDTH - _task_progress->getWidth()) / 2, UI_HEIGHT / 2 + 2);
 
   _mode = MODE_COPYING;
 
@@ -194,10 +194,10 @@ void FilesContext::showFilesTmpl()
 
   _files_list = WidgetCreator::getDynamicMenu(ID_DYNAMIC_MENU);
   layout->addWidget(_files_list);
-  _files_list->setHeight(TFT_HEIGHT - PADDING_BOTT - DISPLAY_CUTOUT);
+  _files_list->setHeight(UI_HEIGHT - PADDING_BOTT - DISPLAY_CUTOUT);
   _files_list->setPos(0, DISPLAY_CUTOUT);
   _files_list->setItemHeight((_files_list->getHeight() - 2) / MENU_ITEMS_NUM);
-  _files_list->setWidth(TFT_WIDTH - SCROLLBAR_WIDTH);
+  _files_list->setWidth(UI_WIDTH - SCROLLBAR_WIDTH);
 
   _files_list->setOnNextItemsLoadHandler(onNextItemsLoad, this);
   _files_list->setOnPrevItemsLoadHandler(onPrevItemsLoad, this);
@@ -205,8 +205,8 @@ void FilesContext::showFilesTmpl()
   _scrollbar = new ScrollBar(ID_SCROLLBAR);
   layout->addWidget(_scrollbar);
   _scrollbar->setWidth(SCROLLBAR_WIDTH);
-  _scrollbar->setHeight(TFT_HEIGHT - PADDING_BOTT - DISPLAY_CUTOUT);
-  _scrollbar->setPos(TFT_WIDTH - SCROLLBAR_WIDTH, DISPLAY_CUTOUT);
+  _scrollbar->setHeight(UI_HEIGHT - PADDING_BOTT - DISPLAY_CUTOUT);
+  _scrollbar->setPos(UI_WIDTH - SCROLLBAR_WIDTH, DISPLAY_CUTOUT);
   _scrollbar->setBackColor(COLOR_MAIN_BACK);
 
   Label* size_title_lbl = new Label(ID_SIZE_TITLE_LBL);
@@ -214,7 +214,7 @@ void FilesContext::showFilesTmpl()
   size_title_lbl->setText(STR_SIZE);
   size_title_lbl->setTextColor(COLOR_WHITE);
   size_title_lbl->initWidthToFit();
-  size_title_lbl->setPos(DISPLAY_CUTOUT, TFT_HEIGHT - size_title_lbl->getHeight() * 2 - 7);
+  size_title_lbl->setPos(DISPLAY_CUTOUT, UI_HEIGHT - size_title_lbl->getHeight() * 2 - 7);
 
   _file_size_lbl = new Label(ID_SIZE_LBL);
   layout->addWidget(_file_size_lbl);
@@ -228,7 +228,7 @@ void FilesContext::showFilesTmpl()
   _file_pos_lbl->setText("[0/0]");
   _file_pos_lbl->setTextColor(COLOR_WHITE);
   _file_pos_lbl->initWidthToFit();
-  _file_pos_lbl->setPos(DISPLAY_CUTOUT, TFT_HEIGHT - _file_pos_lbl->getHeight() - 2);
+  _file_pos_lbl->setPos(DISPLAY_CUTOUT, UI_HEIGHT - _file_pos_lbl->getHeight() - 2);
 
   _mode = MODE_NAVIGATION;
 
@@ -255,7 +255,7 @@ void FilesContext::showContextMenu()
   _context_menu = new FixedMenu(ID_CNTXT_MENU);
   getLayout()->addWidget(_context_menu);
   _context_menu->setItemHeight(18);
-  _context_menu->setWidth((float)TFT_WIDTH / 2.2);
+  _context_menu->setWidth((float)UI_WIDTH / 2.2);
   _context_menu->setBackColor(COLOR_BLACK);
   _context_menu->setBorder(true);
   _context_menu->setBorderColor(COLOR_ORANGE);
@@ -401,8 +401,8 @@ void FilesContext::showContextMenu()
 
   //
   _context_menu->setHeight(_context_menu->getSize() * _context_menu->getItemHeight() + 4);
-  _context_menu->setPos(TFT_WIDTH - _context_menu->getWidth() - 1,
-                        TFT_HEIGHT - PADDING_BOTT - _context_menu->getHeight() - 2);
+  _context_menu->setPos(UI_WIDTH - _context_menu->getWidth() - 1,
+                        UI_HEIGHT - PADDING_BOTT - _context_menu->getHeight() - 2);
 }
 
 void FilesContext::hideContextMenu()
@@ -420,7 +420,7 @@ void FilesContext::showDialog(Mode mode)
 
   _dialog_txt = new TextBox(ID_DIALOG_TXT);
   _dialog_txt->setHPadding(5);
-  _dialog_txt->setWidth(TFT_WIDTH - 10);
+  _dialog_txt->setWidth(UI_WIDTH - 10);
   _dialog_txt->setHeight(40);
   _dialog_txt->setBackColor(COLOR_WHITE);
   _dialog_txt->setTextColor(COLOR_BLACK);

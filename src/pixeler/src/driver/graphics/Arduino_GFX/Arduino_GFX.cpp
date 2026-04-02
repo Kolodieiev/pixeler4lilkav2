@@ -15,6 +15,10 @@
 #include "font/glcdfont.h"
 #include "pixeler/setup/graphics_setup.h"
 
+#if CONFIG_IDF_TARGET_ESP32P4 && defined(DIRECT_DRAWING)
+#error "Пряме малювання не підтримуєтсья на ESP32P4. Використовуй канву!"
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4 && defined(DIRECT_DRAWING)
+
 /**************************************************************************/
 /*!
   @brief  Instatiate a GFX context for graphics! Can only be done by a superclass
@@ -44,7 +48,131 @@ Arduino_GFX::Arduino_GFX(int16_t w, int16_t h) : FRAMEBUFF_SIZE{static_cast<uint
   _rotation = 0;
   wrap = true;
   u8g2Font = NULL;
+
+#if CONFIG_IDF_TARGET_ESP32P4
+  ppa_client_config_t ppa_config = {
+      .oper_type = PPA_OPERATION_FILL,
+      .max_pending_trans_num = 1,
+      .data_burst_length = PPA_DATA_BURST_LENGTH_128};
+
+  if (esp_err_t ret = ppa_register_client(&ppa_config, &_ppa_fill) != ESP_OK)
+  {
+    log_e("Помилка реєстрації FILL клієнта: %s", esp_err_to_name(ret));
+    esp_restart();
+  }
+
+  ppa_client_config_t srm_config = {
+      .oper_type = PPA_OPERATION_SRM,
+      .max_pending_trans_num = 1,
+      .data_burst_length = PPA_DATA_BURST_LENGTH_128};
+
+  if (esp_err_t ret = ppa_register_client(&srm_config, &_ppa_srm) != ESP_OK)
+  {
+    log_e("Помилка реєстрації SRM клієнта: %s", esp_err_to_name(ret));
+    esp_restart();
+  }
+
+  log_i("PPA ініціалізовано");
+
+  _fill_oper = {
+      .out = {
+          .buffer = nullptr,
+          .buffer_size = FRAMEBUFF_SIZE,
+          .pic_w = 0,
+          .pic_h = 0,
+          .block_offset_x = 0,
+          .block_offset_y = 0,
+          .fill_cm = PPA_FILL_COLOR_MODE_RGB565,
+      },
+      .fill_block_w = 0,
+      .fill_block_h = 0,
+      .fill_color_val = 0,
+      .mode = PPA_TRANS_MODE_BLOCKING,
+  };
+
+  _srm_oper = {
+      .in = {
+          .buffer = nullptr,
+          .pic_w = 0,
+          .pic_h = 0,
+          .block_w = 0,
+          .block_h = 0,
+          .srm_cm = PPA_SRM_COLOR_MODE_RGB565,
+      },
+      .out = {
+          .buffer = nullptr,
+          .buffer_size = FRAMEBUFF_SIZE,
+          .pic_w = 0,
+          .pic_h = 0,
+          .block_offset_x = 0,
+          .block_offset_y = 0,
+          .srm_cm = PPA_SRM_COLOR_MODE_RGB565,
+      },
+      .rotation_angle = PPA_SRM_ROTATION_ANGLE_0,
+      .scale_x = 1.0f,
+      .scale_y = 1.0f,
+      .mode = PPA_TRANS_MODE_BLOCKING,
+  };
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
 }
+
+#if CONFIG_IDF_TARGET_ESP32P4
+void Arduino_GFX::ppaFill(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color)
+{
+  _fill_oper.out.buffer = _framebuffer;
+  _fill_oper.out.pic_w = WIDTH;
+  _fill_oper.out.pic_h = HEIGHT;
+  _fill_oper.out.block_offset_x = x;
+  _fill_oper.out.block_offset_y = y;
+  _fill_oper.fill_block_w = w;
+  _fill_oper.fill_block_h = h;
+  _fill_oper.fill_color_val = color16RGBTo24RGB(color);
+
+  ppa_do_fill(_ppa_fill, &_fill_oper);
+}
+
+void Arduino_GFX::ppaRotate(const void* buff_from,
+                            uint16_t buff_f_w,
+                            uint16_t buff_f_h,
+                            uint16_t x,
+                            uint16_t y,
+                            void* buff_to,
+                            uint16_t buff_t_w,
+                            uint16_t buff_t_h,
+                            ppa_srm_rotation_angle_t angle)
+{
+  _srm_oper.in.buffer = buff_from;
+  _srm_oper.in.pic_w = buff_f_w;
+  _srm_oper.in.pic_h = buff_f_h;
+  _srm_oper.in.block_w = buff_f_w;
+  _srm_oper.in.block_h = buff_f_h;
+
+  _srm_oper.out.buffer = buff_to;
+  _srm_oper.out.buffer_size = FRAMEBUFF_SIZE;
+  _srm_oper.out.pic_w = buff_t_w;
+  _srm_oper.out.pic_h = buff_t_h;
+  _srm_oper.out.block_offset_x = x;
+  _srm_oper.out.block_offset_y = y;
+
+  _srm_oper.rotation_angle = angle;
+
+  ppa_do_scale_rotate_mirror(_ppa_srm, &_srm_oper);
+}
+
+uint32_t Arduino_GFX::color16RGBTo24RGB(uint16_t color565)
+{
+  uint32_t r = (color565 >> 11) & 0x1F;
+  uint32_t g = (color565 >> 5) & 0x3F;
+  uint32_t b = color565 & 0x1F;
+
+  r = (r * 521) >> 6;
+  g = (g * 1025) >> 8;
+  b = (b * 521) >> 6;
+
+  return (r << 16) | (g << 8) | b;
+}
+
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
 
 /**************************************************************************/
 /*!
@@ -276,11 +404,13 @@ void Arduino_GFX::writeFillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint
 /**************************************************************************/
 void Arduino_GFX::writeFillRectPreclipped(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color)
 {
+#if CONFIG_IDF_TARGET_ESP32P4
+  ppaFill(x, y, w, h, color);
+#else
   // Overwrite in subclasses if desired!
-  for (int16_t i = y; i < y + h; i++)
-  {
+  for (int16_t i = y; i < y + h; ++i)
     writeFastHLine(x, i, w, color);
-  }
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
 }
 
 /**************************************************************************/
@@ -1977,43 +2107,59 @@ void Arduino_GFX::drawBitmapToFramebuffer(
     int16_t framebuffer_w,
     int16_t framebuffer_h)
 {
+#if CONFIG_IDF_TARGET_ESP32P4
+  bool can_use_ppa = true;
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
   int16_t max_X = framebuffer_w - 1;
   int16_t max_Y = framebuffer_h - 1;
-  if (
-      ((x + bitmap_w - 1) < 0) ||  // Outside left
-      ((y + bitmap_h - 1) < 0) ||  // Outside top
-      (x > max_X) ||               // Outside right
-      (y > max_Y)                  // Outside bottom
-  )
+  int16_t x_skip = 0;
+
+  if ((y + bitmap_h - 1) > max_Y)
   {
-    return;
+    bitmap_h -= (y + bitmap_h - 1) - max_Y;
+#if CONFIG_IDF_TARGET_ESP32P4
+    can_use_ppa = false;
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
+  }
+
+  if (y < 0)
+  {
+    from_bitmap -= y * bitmap_w;
+    bitmap_h += y;
+    y = 0;
+#if CONFIG_IDF_TARGET_ESP32P4
+    can_use_ppa = false;
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
+  }
+
+  if ((x + bitmap_w - 1) > max_X)
+  {
+    x_skip = (x + bitmap_w - 1) - max_X;
+    bitmap_w -= x_skip;
+#if CONFIG_IDF_TARGET_ESP32P4
+    can_use_ppa = false;
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
+  }
+
+  if (x < 0)
+  {
+    from_bitmap -= x;
+    x_skip -= x;
+    bitmap_w += x;
+    x = 0;
+#if CONFIG_IDF_TARGET_ESP32P4
+    can_use_ppa = false;
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
+  }
+
+#if CONFIG_IDF_TARGET_ESP32P4
+  if (can_use_ppa)
+  {
+    ppaRotate(from_bitmap, bitmap_w, bitmap_h, x, y, _framebuffer, WIDTH, HEIGHT, PPA_SRM_ROTATION_ANGLE_0);
   }
   else
   {
-    int16_t x_skip = 0;
-    if ((y + bitmap_h - 1) > max_Y)
-    {
-      bitmap_h -= (y + bitmap_h - 1) - max_Y;
-    }
-    if (y < 0)
-    {
-      from_bitmap -= y * bitmap_w;
-      bitmap_h += y;
-      y = 0;
-    }
-    if ((x + bitmap_w - 1) > max_X)
-    {
-      x_skip = (x + bitmap_w - 1) - max_X;
-      bitmap_w -= x_skip;
-    }
-    if (x < 0)
-    {
-      from_bitmap -= x;
-      x_skip -= x;
-      bitmap_w += x;
-      x = 0;
-    }
-
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
     uint16_t* row = framebuffer;
     row += y * framebuffer_w;  // shift framebuffer to y offset
     row += x;                  // shift framebuffer to x offset
@@ -2049,7 +2195,9 @@ void Arduino_GFX::drawBitmapToFramebuffer(
         row += framebuffer_w;
       }
     }
+#if CONFIG_IDF_TARGET_ESP32P4
   }
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
 }
 
 void Arduino_GFX::drawBitmapToFramebufferRotate1(
@@ -2062,43 +2210,63 @@ void Arduino_GFX::drawBitmapToFramebufferRotate1(
     int16_t framebuffer_w,
     int16_t framebuffer_h)
 {
+#if CONFIG_IDF_TARGET_ESP32P4
+  bool can_use_ppa = true;
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
+
   int16_t max_X = framebuffer_w - 1;
   int16_t max_Y = framebuffer_h - 1;
-  if (
-      ((x + bitmap_w - 1) < 0) ||  // Outside left
-      ((y + bitmap_h - 1) < 0) ||  // Outside top
-      (x > max_X) ||               // Outside right
-      (y > max_Y)                  // Outside bottom
-  )
+  int16_t x_skip = 0;
+
+  if ((y + bitmap_h - 1) > max_Y)
   {
-    return;
+    bitmap_h -= (y + bitmap_h - 1) - max_Y;
+#if CONFIG_IDF_TARGET_ESP32P4
+    can_use_ppa = false;
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
+  }
+
+  if (y < 0)
+  {
+    from_bitmap -= y * bitmap_w;
+    bitmap_h += y;
+    y = 0;
+#if CONFIG_IDF_TARGET_ESP32P4
+    can_use_ppa = false;
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
+  }
+
+  if ((x + bitmap_w - 1) > max_X)
+  {
+    x_skip = (x + bitmap_w - 1) - max_X;
+    bitmap_w -= x_skip;
+#if CONFIG_IDF_TARGET_ESP32P4
+    can_use_ppa = false;
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
+  }
+
+  if (x < 0)
+  {
+    from_bitmap -= x;
+    x_skip -= x;
+    bitmap_w += x;
+    x = 0;
+#if CONFIG_IDF_TARGET_ESP32P4
+    can_use_ppa = false;
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
+  }
+
+#if CONFIG_IDF_TARGET_ESP32P4
+  if (can_use_ppa)
+  {
+    uint16_t target_x = WIDTH - y - bitmap_h;
+    uint16_t target_y = x;
+
+    ppaRotate(from_bitmap, bitmap_w, bitmap_h, target_x, target_y, _framebuffer, WIDTH, HEIGHT, PPA_SRM_ROTATION_ANGLE_270);
   }
   else
   {
-    int16_t x_skip = 0;
-    if ((y + bitmap_h - 1) > max_Y)
-    {
-      bitmap_h -= (y + bitmap_h - 1) - max_Y;
-    }
-    if (y < 0)
-    {
-      from_bitmap -= y * bitmap_w;
-      bitmap_h += y;
-      y = 0;
-    }
-    if ((x + bitmap_w - 1) > max_X)
-    {
-      x_skip = (x + bitmap_w - 1) - max_X;
-      bitmap_w -= x_skip;
-    }
-    if (x < 0)
-    {
-      from_bitmap -= x;
-      x_skip -= x;
-      bitmap_w += x;
-      x = 0;
-    }
-
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
     uint16_t* p;
     int16_t i;
     for (int16_t j = 0; j < bitmap_h; j++)
@@ -2115,7 +2283,9 @@ void Arduino_GFX::drawBitmapToFramebufferRotate1(
       }
       from_bitmap += x_skip;
     }
+#if CONFIG_IDF_TARGET_ESP32P4
   }
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
 }
 
 void Arduino_GFX::drawBitmapToFramebufferRotate2(
@@ -2128,43 +2298,63 @@ void Arduino_GFX::drawBitmapToFramebufferRotate2(
     int16_t framebuffer_w,
     int16_t framebuffer_h)
 {
+#if CONFIG_IDF_TARGET_ESP32P4
+  bool can_use_ppa = true;
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
+
   int16_t max_X = framebuffer_w - 1;
   int16_t max_Y = framebuffer_h - 1;
-  if (
-      ((x + bitmap_w - 1) < 0) ||  // Outside left
-      ((y + bitmap_h - 1) < 0) ||  // Outside top
-      (x > max_X) ||               // Outside right
-      (y > max_Y)                  // Outside bottom
-  )
+  int16_t x_skip = 0;
+
+  if ((y + bitmap_h - 1) > max_Y)
   {
-    return;
+    bitmap_h -= (y + bitmap_h - 1) - max_Y;
+#if CONFIG_IDF_TARGET_ESP32P4
+    can_use_ppa = false;
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
+  }
+
+  if (y < 0)
+  {
+    from_bitmap -= y * bitmap_w;
+    bitmap_h += y;
+    y = 0;
+#if CONFIG_IDF_TARGET_ESP32P4
+    can_use_ppa = false;
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
+  }
+
+  if ((x + bitmap_w - 1) > max_X)
+  {
+    x_skip = (x + bitmap_w - 1) - max_X;
+    bitmap_w -= x_skip;
+#if CONFIG_IDF_TARGET_ESP32P4
+    can_use_ppa = false;
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
+  }
+
+  if (x < 0)
+  {
+    from_bitmap -= x;
+    x_skip -= x;
+    bitmap_w += x;
+    x = 0;
+#if CONFIG_IDF_TARGET_ESP32P4
+    can_use_ppa = false;
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
+  }
+
+#if CONFIG_IDF_TARGET_ESP32P4
+  if (can_use_ppa)
+  {
+    uint16_t target_x = WIDTH - x - bitmap_w;
+    uint16_t target_y = HEIGHT - y - bitmap_h;
+
+    ppaRotate(from_bitmap, bitmap_w, bitmap_h, target_x, target_y, _framebuffer, WIDTH, HEIGHT, PPA_SRM_ROTATION_ANGLE_180);
   }
   else
   {
-    int16_t x_skip = 0;
-    if ((y + bitmap_h - 1) > max_Y)
-    {
-      bitmap_h -= (y + bitmap_h - 1) - max_Y;
-    }
-    if (y < 0)
-    {
-      from_bitmap -= y * bitmap_w;
-      bitmap_h += y;
-      y = 0;
-    }
-    if ((x + bitmap_w - 1) > max_X)
-    {
-      x_skip = (x + bitmap_w - 1) - max_X;
-      bitmap_w -= x_skip;
-    }
-    if (x < 0)
-    {
-      from_bitmap -= x;
-      x_skip -= x;
-      bitmap_w += x;
-      x = 0;
-    }
-
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
     uint16_t* row = framebuffer;
     row += (max_Y - y) * framebuffer_w;   // shift framebuffer to y offset
     row += framebuffer_w - x - bitmap_w;  // shift framebuffer to x offset
@@ -2180,7 +2370,9 @@ void Arduino_GFX::drawBitmapToFramebufferRotate2(
       from_bitmap += x_skip;
       row -= framebuffer_w;
     }
+#if CONFIG_IDF_TARGET_ESP32P4
   }
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
 }
 
 void Arduino_GFX::drawBitmapToFramebufferRotate3(
@@ -2193,43 +2385,63 @@ void Arduino_GFX::drawBitmapToFramebufferRotate3(
     int16_t framebuffer_w,
     int16_t framebuffer_h)
 {
+#if CONFIG_IDF_TARGET_ESP32P4
+  bool can_use_ppa = true;
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
+
   int16_t max_X = framebuffer_w - 1;
   int16_t max_Y = framebuffer_h - 1;
-  if (
-      ((x + bitmap_w - 1) < 0) ||  // Outside left
-      ((y + bitmap_h - 1) < 0) ||  // Outside top
-      (x > max_X) ||               // Outside right
-      (y > max_Y)                  // Outside bottom
-  )
+  int16_t x_skip = 0;
+
+  if ((y + bitmap_h - 1) > max_Y)
   {
-    return;
+    bitmap_h -= (y + bitmap_h - 1) - max_Y;
+#if CONFIG_IDF_TARGET_ESP32P4
+    can_use_ppa = false;
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
+  }
+
+  if (y < 0)
+  {
+    from_bitmap -= y * bitmap_w;
+    bitmap_h += y;
+    y = 0;
+#if CONFIG_IDF_TARGET_ESP32P4
+    can_use_ppa = false;
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
+  }
+
+  if ((x + bitmap_w - 1) > max_X)
+  {
+    x_skip = (x + bitmap_w - 1) - max_X;
+    bitmap_w -= x_skip;
+#if CONFIG_IDF_TARGET_ESP32P4
+    can_use_ppa = false;
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
+  }
+
+  if (x < 0)
+  {
+    from_bitmap -= x;
+    x_skip -= x;
+    bitmap_w += x;
+    x = 0;
+#if CONFIG_IDF_TARGET_ESP32P4
+    can_use_ppa = false;
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
+  }
+
+#if CONFIG_IDF_TARGET_ESP32P4
+  if (can_use_ppa)
+  {
+    uint16_t target_x = y;
+    uint16_t target_y = HEIGHT - x - bitmap_w;
+
+    ppaRotate(from_bitmap, bitmap_w, bitmap_h, target_x, target_y, _framebuffer, WIDTH, HEIGHT, PPA_SRM_ROTATION_ANGLE_90);
   }
   else
   {
-    int16_t x_skip = 0;
-    if ((y + bitmap_h - 1) > max_Y)
-    {
-      bitmap_h -= (y + bitmap_h - 1) - max_Y;
-    }
-    if (y < 0)
-    {
-      from_bitmap -= y * bitmap_w;
-      bitmap_h += y;
-      y = 0;
-    }
-    if ((x + bitmap_w - 1) > max_X)
-    {
-      x_skip = (x + bitmap_w - 1) - max_X;
-      bitmap_w -= x_skip;
-    }
-    if (x < 0)
-    {
-      from_bitmap -= x;
-      x_skip -= x;
-      bitmap_w += x;
-      x = 0;
-    }
-
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
     uint16_t* p;
     int16_t i;
     for (int16_t j = 0; j < bitmap_h; j++)
@@ -2246,5 +2458,7 @@ void Arduino_GFX::drawBitmapToFramebufferRotate3(
       }
       from_bitmap += x_skip;
     }
+#if CONFIG_IDF_TARGET_ESP32P4
   }
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
 }

@@ -4,8 +4,8 @@ EmptyLayout* WidgetCreator::getEmptyLayout()
 {
   EmptyLayout* layout = new EmptyLayout(1);
   layout->setBackColor(COLOR_MAIN_BACK);
-  layout->setWidth(TFT_WIDTH);
-  layout->setHeight(TFT_HEIGHT);
+  layout->setWidth(UI_WIDTH);
+  layout->setHeight(UI_HEIGHT);
   return layout;
 }
 
@@ -36,8 +36,8 @@ DynamicMenu* WidgetCreator::getDynamicMenu(uint16_t id)
 {
   DynamicMenu* menu = new DynamicMenu(id);
   menu->setBackColor(COLOR_BLACK);
-  menu->setWidth(TFT_WIDTH);
-  menu->setHeight(TFT_HEIGHT * 2 - 2);
+  menu->setWidth(UI_WIDTH);
+  menu->setHeight(UI_HEIGHT * 2 - 2);
   return menu;
 }
 
@@ -49,10 +49,10 @@ Label* WidgetCreator::getStatusMsgLable(uint16_t id, const char* text, uint8_t t
   lbl->setAlign(IWidget::ALIGN_CENTER);
   lbl->setGravity(IWidget::GRAVITY_CENTER);
   lbl->setBackColor(COLOR_MAIN_BACK);
-  lbl->setWidth(TFT_WIDTH - DISPLAY_CUTOUT * 2);
+  lbl->setWidth(UI_WIDTH - DISPLAY_CUTOUT * 2);
   lbl->setAutoscroll(true);
   lbl->setFullAutoscroll(false);
-  lbl->setPos((TFT_WIDTH - lbl->getWidth()) / 2, TFT_HEIGHT / 2 - lbl->getHeight() * 2);
+  lbl->setPos((UI_WIDTH - lbl->getWidth()) / 2, UI_HEIGHT / 2 - lbl->getHeight() * 2);
 
   return lbl;
 }
@@ -60,8 +60,8 @@ Label* WidgetCreator::getStatusMsgLable(uint16_t id, const char* text, uint8_t t
 Keyboard* WidgetCreator::getStandardEnKeyboard(uint16_t id)
 {
   Keyboard* _keyboard = new Keyboard(id);
-  _keyboard->setWidth(TFT_WIDTH);
-  _keyboard->setHeight(TFT_HEIGHT - 50 * 2);
+  _keyboard->setWidth(UI_WIDTH);
+  _keyboard->setHeight(UI_HEIGHT - 50 * 2);
   _keyboard->setPos(0, 50 + DISPLAY_CUTOUT);
   _keyboard->setCornerRadius(5);
 
@@ -267,8 +267,8 @@ Keyboard* WidgetCreator::getStandardEnKeyboard(uint16_t id)
 Keyboard* WidgetCreator::getCapsdEnKeyboard(uint16_t id)
 {
   Keyboard* _keyboard = new Keyboard(id);
-  _keyboard->setWidth(TFT_WIDTH);
-  _keyboard->setHeight(TFT_HEIGHT - 50 * 2);
+  _keyboard->setWidth(UI_WIDTH);
+  _keyboard->setHeight(UI_HEIGHT - 50 * 2);
   _keyboard->setPos(0, 50 + DISPLAY_CUTOUT);
   _keyboard->setCornerRadius(5);
 
@@ -475,7 +475,7 @@ Label* WidgetCreator::getWindowHeader(uint16_t id, const char* text)
 {
   Label* header_lbl = new Label(id);
   header_lbl->setText(text);
-  header_lbl->setWidth(TFT_WIDTH);
+  header_lbl->setWidth(UI_WIDTH);
   header_lbl->setBackColor(COLOR_MAIN_BACK);
   header_lbl->setTextColor(COLOR_WHITE);
   header_lbl->setAlign(IWidget::ALIGN_CENTER);

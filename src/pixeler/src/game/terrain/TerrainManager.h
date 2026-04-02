@@ -16,10 +16,10 @@ namespace pixeler
   {
   public:
     //
-    TerrainManager() : VIEW_W{TFT_WIDTH},
-                       VIEW_H{TFT_HEIGHT},
-                       HALF_VIEW_W{static_cast<uint16_t>(TFT_WIDTH * 0.5f)},
-                       HALF_VIEW_H{static_cast<uint16_t>(TFT_HEIGHT * 0.5f)} {}
+    TerrainManager() : VIEW_W{UI_WIDTH},
+                       VIEW_H{UI_HEIGHT},
+                       HALF_VIEW_W{static_cast<uint16_t>(UI_WIDTH * 0.5f)},
+                       HALF_VIEW_H{static_cast<uint16_t>(UI_HEIGHT * 0.5f)} {}
 
     ~TerrainManager();
 

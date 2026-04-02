@@ -334,6 +334,10 @@ namespace pixeler
 
     _output->setRotation(DISPLAY_ROTATION);
 
+#if ROTATE_CANVAS
+    _canvas.setRotation(DISPLAY_ROTATION);
+#endif  // #if ROTATE_CANVAS
+
     _sync_mutex = xSemaphoreCreateMutex();
 
     if (!_sync_mutex)

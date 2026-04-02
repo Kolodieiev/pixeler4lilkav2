@@ -22,8 +22,13 @@
 //-----------------------------------------------------------------------------------------------------------------------------
 #define BUSS_FREQUENCY 80000000  // Частота шини дисплея.
 
-#define TFT_WIDTH 280   // Ширина дисплея(канвасу).
-#define TFT_HEIGHT 240  // Висота дисплея(канвасу).
+#define UI_WIDTH 280   // Ширина UI.
+#define UI_HEIGHT 240  // Висота UI.
+
+#define DISPLAY_WIDTH UI_HEIGHT  // Ширина дисплея.
+#define DISPLAY_HEIGHT UI_WIDTH  // Висота дисплея.
+
+#define ROTATE_CANVAS false  // Зазвичай не потрібно встановлювати в true. Можна спробувати, якщо нічого не допомогло.
 
 #define SPI_PORT HSPI  // Порт, на якому працюватиме шина SPI дисплея.
 //
@@ -36,8 +41,8 @@
 
 #define PIN_DISPLAY_BL 46  // Закоментуй, якщо відсутній пін управління підсвіткою дисплея.
 // #define HAS_BL_PWM        // Закоментуй, якщо відсутнє управління яскравістю підсвітки дисплея.
-#define DISPLAY_BL_PWM_FREQ 3000     // Частота PWM підсвітки дисплея.
-#define DISPLAY_BL_PWM_RES 8  //
+#define DISPLAY_BL_PWM_FREQ 3000  // Частота PWM підсвітки дисплея.
+#define DISPLAY_BL_PWM_RES 8      //
 
 #define DISPLAY_ROTATION 3  // Стартова орієнтація дисплея.
 
@@ -48,16 +53,16 @@
 #define IS_COMMON_BUS true                                                                // Парапор, який вказує чи є шина спільною для декількох пристроїв.
 #define BUS_PARAMS TFT_DC, TFT_CS, TFT_SCLK, TFT_MOSI, TFT_MISO, SPI_PORT, IS_COMMON_BUS  // Параметри класу шини.
 
-#define DISP_DRIVER_TYPE Arduino_ST7789                                                                   // Клас драйвера дисплея.
-#define DISP_DRIVER_PARAMS TFT_RST, DISPLAY_ROTATION, IS_IPS_DISPLAY, TFT_HEIGHT, TFT_WIDTH, 0, 0, 0, 20  // Параметри класу драйвера дисплея БЕЗ адреси шини.
+#define DISP_DRIVER_TYPE Arduino_ST7789                                                                           // Клас драйвера дисплея.
+#define DISP_DRIVER_PARAMS TFT_RST, DISPLAY_ROTATION, IS_IPS_DISPLAY, DISPLAY_WIDTH, DISPLAY_HEIGHT, 0, 0, 0, 20  // Параметри класу драйвера дисплея БЕЗ адреси шини.
 
 // -------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // Нижче налаштування для JC3248W535C
 
 // #define BUSS_FREQUENCY 60000000
 
-// #define TFT_WIDTH 320  // Ширина дисплея.
-// #define TFT_HEIGHT 480 // Висота дисплея.
+// #define UI_WIDTH 320  // Ширина дисплея.
+// #define UI_HEIGHT 480 // Висота дисплея.
 
 // #define TFT_CS 45
 // #define TFT_SCLK 47
@@ -83,6 +88,6 @@
 // #define BUS_PARAMS TFT_CS, TFT_SCLK, TFT_MOSI, TFT_MISO, TFT_D2, TFT_D3, IS_COMMON_BUS // Параметри класу шини.
 
 // #define DISP_DRIVER_TYPE Arduino_AXS15231B                                                  // Клас драйвера дисплея.
-// #define DISP_DRIVER_PARAMS TFT_RST, DISPLAY_ROTATION, IS_IPS_DISPLAY, TFT_WIDTH, TFT_HEIGHT // Параметри класу драйвера дисплея БЕЗ адреси шини.
+// #define DISP_DRIVER_PARAMS TFT_RST, DISPLAY_ROTATION, IS_IPS_DISPLAY, UI_WIDTH, UI_HEIGHT // Параметри класу драйвера дисплея БЕЗ адреси шини.
 
 #endif  // #ifdef GRAPHICS_ENABLED
