@@ -8,7 +8,7 @@
 Arduino_Canvas::Arduino_Canvas(
     int16_t w,
     int16_t h,
-    Arduino_G* output,
+    Arduino_GFX* output,
     int16_t output_x,
     int16_t output_y,
     uint8_t r)

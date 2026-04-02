@@ -7,7 +7,7 @@
 class Arduino_Canvas : public Arduino_GFX
 {
 public:
-  Arduino_Canvas(int16_t w, int16_t h, Arduino_G* output, int16_t output_x = 0, int16_t output_y = 0, uint8_t rotation = 0);
+  Arduino_Canvas(int16_t w, int16_t h, Arduino_GFX* output, int16_t output_x = 0, int16_t output_y = 0, uint8_t rotation = 0);
   ~Arduino_Canvas();
 
   bool begin(int32_t speed = GFX_NOT_DEFINED) override;
@@ -29,7 +29,7 @@ public:
 protected:
   uint16_t* _framebuffer{nullptr};
   uint16_t* _framebuffer2{nullptr};
-  Arduino_G* _output{nullptr};
+  Arduino_GFX* _output{nullptr};
   size_t _buff_size{0};
   int16_t _output_x{0};
   int16_t _output_y{0};

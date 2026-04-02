@@ -8,7 +8,6 @@
 #include <Print.h>
 
 #include "Arduino_DataBus.h"
-#include "Arduino_G.h"
 
 #ifndef DEGTORAD
 #define DEGTORAD 0.017453292519943295769236907684886F
@@ -87,7 +86,7 @@
 #endif
 
 /// A generic graphics superclass that can handle all sorts of drawing. At a minimum you can subclass and provide drawPixel(). At a maximum you can do a ton of overriding to optimize. Used for any/all Adafruit displays!
-class Arduino_GFX : public Print, public Arduino_G
+class Arduino_GFX : public Print
 {
 public:
   Arduino_GFX(int16_t w, int16_t h);  // Constructor
@@ -302,10 +301,54 @@ public:
   }
 
 protected:
+  void gfx_draw_bitmap_to_framebuffer(
+      const uint16_t* from_bitmap,
+      int16_t bitmap_w,
+      int16_t bitmap_h,
+      uint16_t* framebuffer,
+      int16_t x,
+      int16_t y,
+      int16_t framebuffer_w,
+      int16_t framebuffer_h);
+
+  void gfx_draw_bitmap_to_framebuffer_rotate_1(
+      const uint16_t* from_bitmap,
+      int16_t bitmap_w,
+      int16_t bitmap_h,
+      uint16_t* framebuffer,
+      int16_t x,
+      int16_t y,
+      int16_t framebuffer_w,
+      int16_t framebuffer_h);
+
+  void gfx_draw_bitmap_to_framebuffer_rotate_2(
+      const uint16_t* from_bitmap,
+      int16_t bitmap_w,
+      int16_t bitmap_h,
+      uint16_t* framebuffer,
+      int16_t x,
+      int16_t y,
+      int16_t framebuffer_w,
+      int16_t framebuffer_h);
+
+  void gfx_draw_bitmap_to_framebuffer_rotate_3(
+      const uint16_t* from_bitmap,
+      int16_t bitmap_w,
+      int16_t bitmap_h,
+      uint16_t* framebuffer,
+      int16_t x,
+      int16_t y,
+      int16_t framebuffer_w,
+      int16_t framebuffer_h);
+
+protected:
   const uint8_t* u8g2Font;
   const uint8_t* _u8g2_decode_ptr;
   int16_t* _roundMinX;
   int16_t* _roundMaxX;
+
+  const uint16_t WIDTH;   ///< This is the 'raw' display width - never changes
+  const uint16_t HEIGHT;  ///< This is the 'raw' display height - never changes
 
   uint16_t _encoding;
   uint16_t _u8g2_start_pos_upper_A;
@@ -357,7 +400,7 @@ protected:
 
   uint8_t _u8g2_decode_bit_pos;
 
-  bool _isRoundMode = false;
+  bool _isRoundMode = false; // TODO
   bool _enableUTF8Print = false;
   bool wrap;  ///< If set, 'wrap' text at right edge of display
 };
