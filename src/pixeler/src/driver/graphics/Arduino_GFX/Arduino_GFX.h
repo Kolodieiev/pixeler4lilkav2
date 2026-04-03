@@ -164,6 +164,24 @@ public:
   virtual void draw16bitRGBBitmap(int16_t x, int16_t y, const uint16_t* bitmap, int16_t w, int16_t h);
   virtual void draw16bitRGBBitmapWithTranColor(int16_t x, int16_t y, const uint16_t* bitmap, uint16_t transparent_color, int16_t w, int16_t h);
   virtual void drawChar(int16_t x, int16_t y, unsigned char c, uint16_t color, uint16_t bg);
+
+  /**
+   * @brief Має ефект, тільки якщо підтримується на МК.
+   * Встановлює стан активності модуля апаратного прискорення для операцій заповнення кольором
+   * та копіювання зображень в буфер кадру.
+   * НЕ ЕФЕКТИВНЕ ДЛЯ МАЛИХ БЛОКІВ.
+   * @param state
+   */
+  void setPPAState(bool state);
+
+  /**
+   * @brief Повертає стан активності PPA модуля.
+   *
+   * @return true - Якщо PPA увімкнено.
+   * @return false - Інакше.
+   */
+  bool isPPAEnabled() const;
+
   /**********************************************************************/
   /*!
     @brief  Set text cursor location
@@ -303,6 +321,11 @@ public:
     return ((red & 0xF8) << 8) | ((green & 0xFC) << 3) | (blue >> 3);
   }
 
+#if CONFIG_IDF_TARGET_ESP32P4
+  // void pushPPAImg();// TODO
+
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
+
 protected:
   void drawBitmapToFramebuffer(
       const uint16_t* from_bitmap,
@@ -369,10 +392,9 @@ protected:
   ppa_srm_oper_config_t _srm_oper;
 #endif  // #if CONFIG_IDF_TARGET_ESP32P4
 
-  uint16_t* _framebuffer{nullptr};
-
   const uint8_t* u8g2Font{nullptr};
   const uint8_t* _u8g2_decode_ptr{nullptr};
+  uint16_t* _framebuffer{nullptr};
 
   const uint32_t FRAMEBUFF_SIZE;
   const uint16_t WIDTH;   ///< This is the 'raw' display width - never changes
@@ -428,4 +450,8 @@ protected:
 
   bool _enableUTF8Print = false;
   bool wrap;  ///< If set, 'wrap' text at right edge of display
+
+#if CONFIG_IDF_TARGET_ESP32P4
+  bool _ppa_enabled{false};
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
 };

@@ -268,7 +268,7 @@ namespace pixeler
     if (rigid_only && !_sprite.is_rigid)
       return false;
 
-    // Визначаємо межі прямокутника (AABB)
+    // 1. Визначаємо межі прямокутника (AABB)
     int16_t rect_x1, rect_y1, rect_x2, rect_y2;
 
     if (rigid_only)
@@ -286,15 +286,15 @@ namespace pixeler
       rect_y2 = _y_global + _sprite.height;
     }
 
-    // Знаходимо найближчу точку на прямокутнику до центру кола
+    // 2. Знаходимо найближчу точку на прямокутнику до центру кола
     int16_t closest_x = (x_mid < rect_x1) ? rect_x1 : (x_mid > rect_x2 ? rect_x2 : x_mid);
     int16_t closest_y = (y_mid < rect_y1) ? rect_y1 : (y_mid > rect_y2 ? rect_y2 : y_mid);
 
-    // Рахуємо відстань від найближчої точки до центру кола
+    // 3. Рахуємо відстань від найближчої точки до центру кола
     int32_t dx = static_cast<int32_t>(x_mid) - closest_x;
     int32_t dy = static_cast<int32_t>(y_mid) - closest_y;
 
-    // Перевірка чи відстань менша за радіус (використовуємо квадрат відстані)
+    // 4. Перевірка: чи відстань менша за радіус (використовуємо квадрат відстані)
     return (dx * dx + dy * dy) <= (static_cast<int32_t>(radius) * radius);
   }
 

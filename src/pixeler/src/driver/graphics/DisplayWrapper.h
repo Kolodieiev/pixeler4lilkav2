@@ -16,6 +16,8 @@
 #include "pixeler/setup/graphics_setup.h"
 
 #define WDT_GUARD_TIME 1000UL
+#define PPA_FILL_SIZE_TRIGG 67599U
+#define PPA_IMG_SIZE_TRIGG 51983U
 
 namespace pixeler
 {
@@ -93,6 +95,23 @@ namespace pixeler
      * @return size_t - Кількість виведених байтів.
      */
     size_t print(const char* str);
+
+    /**
+     * @brief Має ефект, тільки якщо підтримується на МК.
+     * Встановлює стан активності модуля апаратного прискорення для операцій заповнення кольором
+     * та копіювання зображень в буфер кадру.
+     * НЕ ЕФЕКТИВНЕ ДЛЯ МАЛИХ БЛОКІВ.
+     * @param state
+     */
+    void setPPAState(bool state);
+
+    /**
+     * @brief Повертає стан активності PPA модуля.
+     *
+     * @return true - Якщо PPA увімкнено.
+     * @return false - Інакше.
+     */
+    bool isPPAEnabled() const;
 
     /**
      * @brief Розраховує межі, до яких займатиме місце на канвасі вказаний текст.

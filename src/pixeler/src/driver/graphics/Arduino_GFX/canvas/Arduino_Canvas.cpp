@@ -233,22 +233,27 @@ void Arduino_Canvas::writeFillRectPreclipped(int16_t x, int16_t y, int16_t w, in
         break;
     }
   }
-  
+
 #if CONFIG_IDF_TARGET_ESP32P4
-  ppaFill(x, y, w, h, color);
-#else
-  uint16_t* row = _framebuffer;
-  row += y * WIDTH;
-  row += x;
-  for (int j = 0; j < h; j++)
+  if (_ppa_enabled)
   {
-    for (int i = 0; i < w; i++)
-    {
-      row[i] = color;
-    }
-    row += WIDTH;
+    ppaFill(x, y, w, h, color);
   }
+  else
 #endif  // #if CONFIG_IDF_TARGET_ESP32P4
+  {
+    uint16_t* row = _framebuffer;
+    row += y * WIDTH;
+    row += x;
+    for (int j = 0; j < h; j++)
+    {
+      for (int i = 0; i < w; i++)
+      {
+        row[i] = color;
+      }
+      row += WIDTH;
+    }
+  }
 }
 
 void Arduino_Canvas::draw16bitRGBBitmap(int16_t x, int16_t y, const uint16_t* bitmap, int16_t w, int16_t h)

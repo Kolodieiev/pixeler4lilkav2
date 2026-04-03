@@ -28,9 +28,9 @@ namespace pixeler
     pinMode(PIN_TOUCH_INT, INPUT);
 
     digitalWrite(PIN_TOUCH_RST, 1);
-    delay(50);
+    delay(10);
     digitalWrite(PIN_TOUCH_RST, 0);
-    delay(50);
+    delay(20);
     digitalWrite(PIN_TOUCH_RST, 1);
     delay(50);
   }
@@ -60,12 +60,11 @@ namespace pixeler
       _is_locked = false;
     }
 
-    // bool int_active = (digitalRead(PIN_TOUCH_INT) == LOW);
-    // if (!int_active && !_is_holded)
-    //   return;
-
-    if (!_i2c.write(AXS15231B_ADDR, READ_CMD, sizeof(READ_CMD)))
+    bool int_active = (digitalRead(PIN_TOUCH_INT) == LOW);
+    if (!int_active && !_is_holded)
       return;
+
+    _i2c.write(AXS15231B_ADDR, READ_CMD, sizeof(READ_CMD));
 
     uint8_t data[AXS_BUF_SIZE]{0};
     if (!_i2c.read(AXS15231B_ADDR, data, (uint8_t)AXS_BUF_SIZE))

@@ -613,6 +613,7 @@ namespace pixeler
       }
       else
       {
+        // TODO setTextWrap ?
         _first_draw_char_pos = 0;
         _has_autoscroll = false;
         _has_autoscroll_in_focus = false;
