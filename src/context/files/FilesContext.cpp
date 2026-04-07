@@ -13,8 +13,8 @@
 #include "pixeler/src/widget/progress/ProgressBar.h"
 
 #define UPD_TRACK_INF_INTERVAL 1000UL
-#define PADDING_BOTT 40
-#define MENU_ITEMS_NUM 7
+#define PADDING_BOTT 45
+#define MENU_ITEMS_NUM 4
 
 const char STR_SIZE[] = "File size:";
 const char STR_LUA_EXT[] = ".lua";
@@ -192,16 +192,6 @@ void FilesContext::showFilesTmpl()
 
   layout->setBackColor(COLOR_BLACK);
 
-  _files_list = WidgetCreator::getDynamicMenu(ID_DYNAMIC_MENU);
-  layout->addWidget(_files_list);
-  _files_list->setHeight(UI_HEIGHT - PADDING_BOTT - DISPLAY_CUTOUT);
-  _files_list->setPos(0, DISPLAY_CUTOUT);
-  _files_list->setItemHeight((_files_list->getHeight() - 2) / MENU_ITEMS_NUM);
-  _files_list->setWidth(UI_WIDTH - SCROLLBAR_WIDTH);
-
-  _files_list->setOnNextItemsLoadHandler(onNextItemsLoad, this);
-  _files_list->setOnPrevItemsLoadHandler(onPrevItemsLoad, this);
-
   _scrollbar = new ScrollBar(ID_SCROLLBAR);
   layout->addWidget(_scrollbar);
   _scrollbar->setWidth(SCROLLBAR_WIDTH);
@@ -214,7 +204,7 @@ void FilesContext::showFilesTmpl()
   size_title_lbl->setText(STR_SIZE);
   size_title_lbl->setTextColor(COLOR_WHITE);
   size_title_lbl->initWidthToFit();
-  size_title_lbl->setPos(DISPLAY_CUTOUT, UI_HEIGHT - size_title_lbl->getHeight() * 2 - 7);
+  size_title_lbl->setPos(DISPLAY_CUTOUT, UI_HEIGHT - size_title_lbl->getHeight() * 2 - 2);
 
   _file_size_lbl = new Label(ID_SIZE_LBL);
   layout->addWidget(_file_size_lbl);
@@ -229,6 +219,16 @@ void FilesContext::showFilesTmpl()
   _file_pos_lbl->setTextColor(COLOR_WHITE);
   _file_pos_lbl->initWidthToFit();
   _file_pos_lbl->setPos(DISPLAY_CUTOUT, UI_HEIGHT - _file_pos_lbl->getHeight() - 2);
+
+  _files_list = WidgetCreator::getDynamicMenu(ID_DYNAMIC_MENU);
+  layout->addWidget(_files_list);
+  _files_list->setHeight(UI_HEIGHT - DISPLAY_CUTOUT - (UI_HEIGHT - _file_size_lbl->getYPos()) - 2);
+  _files_list->setPos(0, DISPLAY_CUTOUT);
+  _files_list->setItemHeight((_files_list->getHeight() - 2) / MENU_ITEMS_NUM);
+  _files_list->setWidth(UI_WIDTH - SCROLLBAR_WIDTH);
+
+  _files_list->setOnNextItemsLoadHandler(onNextItemsLoad, this);
+  _files_list->setOnPrevItemsLoadHandler(onPrevItemsLoad, this);
 
   _mode = MODE_NAVIGATION;
 

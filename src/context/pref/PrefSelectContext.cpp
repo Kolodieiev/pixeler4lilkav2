@@ -9,6 +9,12 @@
 #include "pixeler/src/manager/SettingsManager.h"
 #include "wifi_power/PrefWiFiPowerContext.h"
 
+static const char STR_AUDIO_MONO[] = "Монозвук";
+static const char STR_WIFI_AUTOCONNECT[] = "Автопідключення до WiFi";
+static const char STR_AUDIO_AMP[] = "Підсилювач звуку";
+static const char STR_LED_GREET[] = "Привітання LED";
+static const char STR_FILE_SERVER[] = "Файловий сервер";
+
 void PrefSelectContext::showSDErrTmpl()
 {
   _mode = MODE_SD_UNCONN;
@@ -42,12 +48,7 @@ void PrefSelectContext::showMainTmpl()
   _menu->setItemHeight((_menu->getHeight() - 2) / 5);
   _menu->setPos(0, DISPLAY_CUTOUT);
 
-  //
-  MenuItem* bright_item = WidgetCreator::getMenuItem(ITEM_ID_BRIGHT);
-  _menu->addItem(bright_item);
-  Label* bright_lbl = WidgetCreator::getItemLabel(STR_BRIGHT, font_10x20);
-  bright_item->setLbl(bright_lbl);
-  //
+  // Монозвук
   ToggleItem* mono_item = new ToggleItem(ITEM_ID_AUDIO_MONO);
   _menu->addItem(mono_item);
   mono_item->setFocusBorderColor(COLOR_LIME);
@@ -65,10 +66,27 @@ void PrefSelectContext::showMainTmpl()
   toggle_mono->setCornerRadius(7);
 
   String mono_mode = SettingsManager::get(STR_PREF_MONO_AUDIO);
-  if (mono_mode.equals("") || mono_mode.equals("0"))
-    toggle_mono->setOn(false);
-  else
+  if (mono_mode.equals("1"))
     toggle_mono->setOn(true);
+  else
+    toggle_mono->setOn(false);
+
+  // Автоматичне підключення wifi
+  ToggleItem* wifi_autoconn_item = mono_item->clone(ITEM_ID_WIFI_AUTOCONN);
+  _menu->addItem(wifi_autoconn_item);
+  wifi_autoconn_item->getLbl()->setText(STR_WIFI_AUTOCONNECT);
+
+  String wifi_autoconn = SettingsManager::get(STR_PREF_WIFI_AUTOCONNECT, STR_WIFI_SUBDIR);
+  if (wifi_autoconn.equals("1"))
+    wifi_autoconn_item->getToggle()->setOn(true);
+  else
+    wifi_autoconn_item->getToggle()->setOn(false);
+
+  //
+  MenuItem* bright_item = WidgetCreator::getMenuItem(ITEM_ID_BRIGHT);
+  _menu->addItem(bright_item);
+  Label* bright_lbl = WidgetCreator::getItemLabel(STR_BRIGHT, font_10x20);
+  bright_item->setLbl(bright_lbl);
 
   //
 
@@ -77,10 +95,10 @@ void PrefSelectContext::showMainTmpl()
   audio_amp_item->getLbl()->setText(STR_AUDIO_AMP);
 
   String audio_amp_str = SettingsManager::get(STR_PREF_AUDIO_AMP);
-  if (audio_amp_str.equals("") || audio_amp_str.equals("0"))
-    audio_amp_item->getToggle()->setOn(false);
-  else
+  if (audio_amp_str.equals("1"))
     audio_amp_item->getToggle()->setOn(true);
+  else
+    audio_amp_item->getToggle()->setOn(false);
 
   //
 
@@ -89,10 +107,10 @@ void PrefSelectContext::showMainTmpl()
   led_greet_item->getLbl()->setText(STR_LED_GREET);
 
   String led_greet_str = SettingsManager::get(STR_PREF_LED_GREET);
-  if (led_greet_str.equals("") || led_greet_str.equals("0"))
-    led_greet_item->getToggle()->setOn(false);
-  else
+  if (led_greet_str.equals("1"))
     led_greet_item->getToggle()->setOn(true);
+  else
+    led_greet_item->getToggle()->setOn(false);
 
   //
 
@@ -184,7 +202,6 @@ void PrefSelectContext::ok()
   if (id == ITEM_ID_AUDIO_MONO)
   {
     ToggleItem* toggle = _menu->getCurrItem()->castTo<ToggleItem>();
-
     if (toggle->isOn())
     {
       if (SettingsManager::set(STR_PREF_MONO_AUDIO, "0"))
@@ -193,6 +210,20 @@ void PrefSelectContext::ok()
     else
     {
       if (SettingsManager::set(STR_PREF_MONO_AUDIO, "1"))
+        toggle->setOn(true);
+    }
+  }
+  else if (id == ITEM_ID_WIFI_AUTOCONN)
+  {
+    ToggleItem* toggle = _menu->getCurrItem()->castTo<ToggleItem>();
+    if (toggle->isOn())
+    {
+      if (SettingsManager::set(STR_PREF_WIFI_AUTOCONNECT, "0", STR_WIFI_SUBDIR))
+        toggle->setOn(false);
+    }
+    else
+    {
+      if (SettingsManager::set(STR_PREF_WIFI_AUTOCONNECT, "1", STR_WIFI_SUBDIR))
         toggle->setOn(true);
     }
   }

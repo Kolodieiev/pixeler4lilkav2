@@ -59,10 +59,13 @@ const char STR_PREF_BRIGHT[] = "brightness";
 const char STR_PREF_MONO_AUDIO[] = "forcemono";
 const char STR_PREF_AUDIO_AMP[] = "audioamp";
 const char STR_PREF_LED_GREET[] = "ledgreeting";
-const char STR_PREF_FS_AP_SSID[] = "fs_ap_ssid";
-const char STR_PREF_FS_AP_PWD[] = "fs_ap_pwd";
-const char STR_PREF_WIFI_POWER[] = "wifi_power";
-
+const char STR_PREF_FS_AP_SSID[] = "fsapssid";
+const char STR_PREF_FS_AP_PWD[] = "fsappwd";
+const char STR_PREF_WIFI_POWER[] = "wifipower";
+const char STR_PREF_WIFI_AUTOCONNECT[] = "wifiautoconn";
+const char STR_PREF_WIFI_LAST_SSID[] = "lastssid";
+//
+const char STR_WIFI_SUBDIR[] = "wifi";
 //
 
 const char STR_SD_ERR[] = "SD не примонтовано";
@@ -77,16 +80,9 @@ const char STR_DEF_PWD[] = "12345678";
 //
 
 const char STR_NEW_DIR[] = "Новий каталог";
-
 //
-
 const char STR_BRIGHT[] = "Яскравість";
-const char STR_AUDIO_MONO[] = "Монозвук";
-const char STR_AUDIO_AMP[] = "Підсилювач звуку";
-const char STR_LED_GREET[] = "Привітання LED";
-const char STR_FILE_SERVER[] = "Файловий сервер";
-const char STR_WIFI_POWER[] = "Потужність WiFi";
-
+static const char STR_WIFI_POWER[] = "Потужність WiFi";
 //
 
 const char STR_MULTI_GAME[] = "Мультиплеєр";

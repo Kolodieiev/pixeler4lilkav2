@@ -116,6 +116,11 @@ Arduino_GFX::Arduino_GFX(int16_t w, int16_t h) : FRAMEBUFF_SIZE{static_cast<uint
 #endif  // #if CONFIG_IDF_TARGET_ESP32P4
 }
 
+Arduino_GFX::~Arduino_GFX()
+{
+  free(_framebuffer);
+}
+
 #if CONFIG_IDF_TARGET_ESP32P4
 void Arduino_GFX::ppaFill(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color)
 {
@@ -1549,6 +1554,22 @@ bool Arduino_GFX::isPPAEnabled() const
 #else
   return false;
 #endif  // #if CONFIG_IDF_TARGET_ESP32P4
+}
+
+void Arduino_GFX::setTextBound(int16_t x, int16_t y, int16_t w, int16_t h)
+{
+  _min_text_x = x;
+  _min_text_y = y;
+  _max_text_x = x + w - 1;
+  _max_text_y = y + h - 1;
+}
+
+void Arduino_GFX::resetTextBound()
+{
+  _min_text_x = 0;
+  _min_text_y = 0;
+  _max_text_x = _max_x;
+  _max_text_y = _max_y;
 }
 
 /**************************************************************************/

@@ -179,8 +179,8 @@ namespace pixeler
 
   uint16_t IGameObject::calcDistToPoint(uint16_t x, uint16_t y)
   {
-    uint16_t a = abs(_x_global + _sprite.x_pivot - x);
-    uint16_t b = abs(_y_global + _sprite.y_pivot - y);
+    uint16_t a = __builtin_abs(_x_global + _sprite.x_pivot - x);
+    uint16_t b = __builtin_abs(_y_global + _sprite.y_pivot - y);
 
     return sqrt((a * a) + (b * b));
   }
@@ -195,7 +195,7 @@ namespace pixeler
 
     if (dx == 0)
     {  // Рух строго по вертикалі
-      if (abs(dy) <= step_w)
+      if (__builtin_abs(dy) <= step_w)
         _y_global = y_to;
       else
         _y_global += (dy > 0) ? step_w : -step_w;
@@ -204,7 +204,7 @@ namespace pixeler
 
     if (dy == 0)
     {  // Рух строго по горизонталі
-      if (abs(dx) <= step_w)
+      if (__builtin_abs(dx) <= step_w)
         _x_global = x_to;
       else
         _x_global += (dx > 0) ? step_w : -step_w;
@@ -212,11 +212,11 @@ namespace pixeler
     }
 
     // Визначаємо, по якій осі відстань більша, щоб зробити її базовою
-    if (abs(dx) >= abs(dy))
+    if (__builtin_abs(dx) >= __builtin_abs(dy))
     {
       // Рух переважно по X
       int16_t x_prev = _x_global;
-      if (abs(dx) <= step_w)
+      if (__builtin_abs(dx) <= step_w)
       {
         _x_global = x_to;
         _y_global = y_to;
@@ -231,7 +231,7 @@ namespace pixeler
     else
     {
       int16_t y_prev = _y_global;
-      if (abs(dy) <= step_w)
+      if (__builtin_abs(dy) <= step_w)
       {
         _y_global = y_to;
         _x_global = x_to;

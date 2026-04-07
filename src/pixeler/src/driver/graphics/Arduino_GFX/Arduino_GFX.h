@@ -94,6 +94,7 @@ class Arduino_GFX : public Print
 {
 public:
   Arduino_GFX(int16_t w, int16_t h);  // Constructor
+  virtual ~Arduino_GFX();
 
   // This MUST be defined by the subclass:
   virtual bool begin(int32_t speed = GFX_NOT_DEFINED) = 0;
@@ -201,13 +202,13 @@ public:
     @param  x    X coordinate in pixels
     @param  y    Y coordinate in pixels
   */
-  void setTextBound(int16_t x, int16_t y, int16_t w, int16_t h)
-  {
-    _min_text_x = x;
-    _min_text_y = y;
-    _max_text_x = x + w - 1;
-    _max_text_y = y + h - 1;
-  }
+  void setTextBound(int16_t x, int16_t y, int16_t w, int16_t h);
+
+  /**
+   * @brief Прибирає поле, яке встановлює кордони для виводу текста.
+   *
+   */
+  void resetTextBound();
 
   /**********************************************************************/
   /*!
