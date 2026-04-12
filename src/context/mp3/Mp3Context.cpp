@@ -506,9 +506,9 @@ void Mp3Context::update()
 
   if (_mode == MODE_AUDIO_PLAY)
   {
-    if (!_is_radio_mode)
+    if (_audio.isRunning())
     {
-      if (_audio.isRunning())
+      if (!_is_radio_mode)
       {
         if (_is_new_track)
         {
@@ -530,29 +530,29 @@ void Mp3Context::update()
           _upd_msg_time = millis();
         }
       }
-      else if (_is_playing)
+      else if (_audio.hasNewStreamTitle())
       {
-        // Якщо трек скінчився самостійно
-        if (playNext())
-        {
-          // Намагаємося перемкнути
-          _is_new_track = true;
-        }
-        else if (_try_next_counter == 3)
-        {
-          // Якщо не вдалося змінити трек з 3х спроб, зупинити плеєр
-          setStopState();
-        }
-        else
-        {
-          ++_try_next_counter;
-        }
+        _audio.resetStreamTitleState();
+        _stream_title_lbl->setText(_audio.getStreamTitle());
       }
     }
-    else if (_audio.hasNewStreamTitle())
+    else if (_is_playing)
     {
-      _audio.resetStreamTitleState();
-      _stream_title_lbl->setText(_audio.getStreamTitle());
+      // Якщо трек скінчився самостійно
+      if (playNext())
+      {
+        // Намагаємося перемкнути
+        _is_new_track = true;
+      }
+      else if (_try_next_counter == 3)
+      {
+        // Якщо не вдалося змінити трек з 3х спроб, зупинити плеєр
+        setStopState();
+      }
+      else
+      {
+        ++_try_next_counter;
+      }
     }
   }
 }
